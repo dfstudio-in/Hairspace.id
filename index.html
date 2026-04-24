@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☁️ Barbershop Cloud - Real-time Sync</title>
+    <title>☁️ HAIRSPACE - Ultimate Cloud System</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,17 +14,17 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (Compatibility Mode - Lebih Mudah!) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <!-- QR Code Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Chart.js untuk Analytics Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <style>
         :root {
-            --primary: #1a1a1a;
-            --secondary: #d4af37;
+            --primary: #dc2626;
+            --secondary: #1a1a1a;
             --cloud-blue: #3b82f6;
             --success: #10b981;
         }
@@ -40,7 +40,19 @@
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(59, 130, 246, 0.3);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+        
+        .btn-hairspace {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-hairspace:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4);
         }
         
         .btn-cloud {
@@ -66,6 +78,18 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
         }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-green:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
         
         @keyframes floatCloud {
             0%, 100% { transform: translateY(0) translateX(0); }
@@ -87,6 +111,13 @@
         }
         
         .pulse-dot { animation: pulseDot 2s infinite; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
         
         .modal-overlay {
             backdrop-filter: blur(8px);
@@ -116,13 +147,13 @@
         }
         
         .input-focus:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
             outline: none;
         }
         
         .table-row-hover:hover {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%) !important;
+            background: linear-gradient(90deg, rgba(220, 38, 38, 0.1) 0%, transparent 100%) !important;
         }
         
         .online-indicator {
@@ -142,7 +173,7 @@
         }
 
         .page-btn.active { 
-            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+            background: linear-gradient(135deg, #dc2626, #b91c1c); 
             color: white; 
         }
         
@@ -150,11 +181,10 @@
             transform: scale(1.1); 
         }
 
-        /* Loading Spinner */
         .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(220, 38, 38, 0.3);
             border-radius: 50%;
-            border-top: 3px solid white;
+            border-top: 3px solid #dc2626;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
@@ -164,6 +194,60 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Logo styling */
+        .logo-img {
+            max-width: 200px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .logo-small {
+            max-width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .logo-medium {
+            max-width: 120px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Notification badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* Tab styling */
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #dc2626;
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -171,6 +255,7 @@
 <!-- ==================== LOADING SCREEN ==================== -->
 <div id="loadingScreen" class="fixed inset-0 z-[300] flex items-center justify-center bg-gray-900">
     <div class="text-center">
+        <img src="https://z-cdn-media.chatglm.cn/files/4bb79712-c1ed-44da-8552-cfa5739cad5d.png?auth_key=1877032435-d0e56084b4a64623bf5328afb3481d8c-0-c11b20cdc4ba3702e1c1b272a9fc6eaa" alt="HAIRSPACE Logo" class="logo-medium mx-auto mb-4 float-cloud">
         <div class="spinner mx-auto mb-4"></div>
         <h2 class="text-white text-xl font-bold">Menghubungkan ke Cloud...</h2>
         <p class="text-gray-400 text-sm mt-2">Mohon tunggu sebentar ⏳</p>
@@ -183,15 +268,13 @@
     
     <div class="glass-card rounded-3xl p-10 w-full max-w-md shadow-2xl float-cloud">
         
-        <!-- Logo -->
+        <!-- Logo HAIRSPACE -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full mb-4 shadow-xl">
-                <i class="fas fa-cut text-4xl text-white" style="animation: cut 2s ease-in-out infinite;"></i>
-            </div>
-            <h1 class="font-display text-4xl font-black text-gray-900">BARBERSHOP</h1>
-            <p class="text-sm text-blue-600 mt-2"><i class="fas fa-cloud mr-1"></i>Cloud Connected • Real-time Sync</p>
+            <img src="https://z-cdn-media.chatglm.cn/files/4bb79712-c1ed-44da-8552-cfa5739cad5d.png?auth_key=1877032435-d0e56084b4a64623bf5328afb3481d8c-0-c11b20cdc4ba3702e1c1b272a9fc6eaa" alt="HAIRSPACE Logo" class="logo-img mx-auto mb-4 shadow-xl rounded-lg">
             
-            <!-- Connection Status Badge -->
+            <h1 class="font-display text-4xl font-black text-gray-900 mt-4">HAIRSPACE</h1>
+            <p class="text-sm text-red-600 mt-2"><i class="fas fa-cloud mr-1"></i>Ultimate Cloud System v3.0</p>
+            
             <div id="loginConnectionStatus" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-200">
                 <div class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></div>
                 <span class="text-xs font-semibold text-green-700">Firebase Connected</span>
@@ -202,33 +285,31 @@
         <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2">
-                    <i class="fas fa-user mr-2 text-blue-500"></i>Username
+                    <i class="fas fa-user mr-2 text-red-500"></i>Username
                 </label>
                 <input type="text" id="loginUsername" required
                        class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
-                       placeholder="admin"
-                       value="admin">
+                       placeholder="admin" value="admin">
             </div>
             
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2">
-                    <i class="fas fa-lock mr-2 text-blue-500"></i>Password
+                    <i class="fas fa-lock mr-2 text-red-500"></i>Password
                 </label>
                 <input type="password" id="loginPassword" required
                        class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
-                       placeholder="••••••••"
-                       value="barber123">
+                       placeholder="••••••••" value="barber123">
             </div>
 
-            <button type="submit" class="btn-cloud w-full py-4 rounded-xl text-lg uppercase tracking-wider font-bold">
+            <button type="submit" class="btn-hairspace w-full py-4 rounded-xl text-lg uppercase tracking-wider font-bold shadow-lg">
                 <i class="fas fa-sign-in-alt mr-2"></i>Login ke Dashboard
             </button>
         </form>
         
         <div class="mt-6 pt-4 border-t border-gray-200 text-center space-y-2">
             <p class="text-xs text-gray-500">Default: admin / barber123</p>
-            <p class="text-xs text-blue-600">
-                <i class="fas fa-database mr-1"></i>Database: Firebase Realtime DB
+            <p class="text-xs text-red-600">
+                <i class="fas fa-bell mr-1"></i>Email & SMS Notification Active
             </p>
         </div>
     </div>
@@ -239,24 +320,28 @@
 <div id="dashboardPage" class="hidden">
 
     <!-- Top Navigation Bar -->
-    <nav class="bg-black/95 backdrop-blur-md border-b border-blue-500/30 sticky top-0 z-50">
+    <nav class="bg-black/95 backdrop-blur-md border-b border-red-500/30 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 
                 <!-- Logo & Brand -->
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-cut text-xl text-white font-bold"></i>
-                    </div>
+                    <img src="https://z-cdn-media.chatglm.cn/files/4bb79712-c1ed-44da-8552-cfa5739cad5d.png?auth_key=1877032435-d0e56084b4a64623bf5328afb3481d8c-0-c11b20cdc4ba3702e1c1b272a9fc6eaa" alt="HAIRSPACE" class="logo-small rounded-lg shadow-lg">
                     <div>
-                        <h1 class="font-display text-2xl font-black text-white">BARBERSHOP</h1>
-                        <p class="text-xs text-blue-400"><i class="fas fa-cloud mr-1"></i>Real-time Sync Active</p>
+                        <h1 class="font-display text-2xl font-black text-white">HAIRSPACE</h1>
+                        <p class="text-xs text-red-400">Ultimate Cloud System v3.0</p>
                     </div>
                 </div>
 
                 <!-- Right Side Actions -->
                 <div class="flex items-center gap-4">
                     
+                    <!-- Notification Bell with Badge -->
+                    <button onclick="openNotificationPanel()" class="relative p-2 hover:bg-gray-800 rounded-lg transition">
+                        <i class="fas fa-bell text-xl text-yellow-400"></i>
+                        <span id="notificationBadge" class="notification-badge hidden">0</span>
+                    </button>
+
                     <!-- Online Status -->
                     <div class="hidden md:flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-lg">
                         <div id="onlineDot" class="online-indicator online pulse-dot"></div>
@@ -271,13 +356,13 @@
 
                     <!-- Quick Stats in Nav -->
                     <div class="hidden lg:flex items-center gap-4 text-white text-sm">
-                        <span><i class="fas fa-users text-blue-400 mr-1"></i><strong id="navTotalCust">0</strong></span>
-                        <span><i class="fas fa-cut text-blue-400 mr-1"></i><strong id="navTotalVisits">0</strong></span>
+                        <span><i class="fas fa-users text-red-400 mr-1"></i><strong id="navTotalCust">0</strong></span>
+                        <span><i class="fas fa-cut text-red-400 mr-1"></i><strong id="navTotalVisits">0</strong></span>
                     </div>
 
                     <!-- User Menu Dropdown -->
                     <div class="relative">
-                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg font-bold text-black transition">
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-bold text-white transition">
                             <i class="fas fa-user-circle"></i>
                             <span>Admin</span>
                             <i class="fas fa-chevron-down text-xs"></i>
@@ -289,6 +374,12 @@
                                 <p class="text-xs text-gray-500">Firebase Realtime Database</p>
                             </div>
                             <div class="p-2">
+                                <button onclick="openNotificationSettingsModal()" class="w-full text-left px-4 py-2 hover:bg-yellow-50 rounded-lg text-sm text-yellow-700">
+                                    <i class="fas fa-cog mr-2"></i>Pengaturan Notifikasi
+                                </button>
+                                <button onclick="openChangePasswordModal()" class="w-full text-left px-4 py-2 hover:bg-yellow-50 rounded-lg text-sm text-yellow-700">
+                                    <i class="fas fa-key mr-2"></i>Ganti Password
+                                </button>
                                 <button onclick="forceSync()" class="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg text-sm text-blue-600">
                                     <i class="fas fa-sync mr-2"></i>Force Sync Now
                                 </button>
@@ -307,289 +398,370 @@
     <!-- Main Content Area -->
     <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
 
-        <!-- ========== HERO SECTION ========== -->
-        <section class="glass-card rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+        <!-- ========== TAB NAVIGATION ========== -->
+        <div class="glass-card rounded-2xl p-2 inline-flex gap-2 shadow-lg">
+            <button onclick="switchTab('dashboard')" class="tab-btn active px-6 py-3 rounded-xl font-semibold text-gray-700 hover:bg-red-50 transition" data-tab="dashboard">
+                <i class="fas fa-home mr-2"></i>Dashboard
+            </button>
+            <button onclick="switchTab('analytics')" class="tab-btn px-6 py-3 rounded-xl font-semibold text-gray-700 hover:bg-red-50 transition" data-tab="analytics">
+                <i class="fas fa-chart-line mr-2"></i>Analytics
+            </button>
+            <button onclick="switchTab('customers')" class="tab-btn px-6 py-3 rounded-xl font-semibold text-gray-700 hover:bg-red-50 transition" data-tab="customers">
+                <i class="fas fa-users mr-2"></i>Customers
+            </button>
+        </div>
+
+
+        <!-- ========== TAB 1: DASHBOARD ========== -->
+        <div id="tab-dashboard" class="tab-content active">
             
-            <!-- Background Decoration -->
-            <div class="absolute top-0 right-0 w-96 h-96 bg-blue-400 rounded-full filter blur-[120px] opacity-10"></div>
-            
-            <div class="relative z-10">
+            <!-- Hero Section -->
+            <section class="glass-card rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-red-400 rounded-full filter blur-[120px] opacity-10"></div>
                 
-                <!-- Logo Icon -->
-                <div class="inline-flex items-center justify-center w-28 h-28 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full mb-6 shadow-2xl float-cloud">
-                    <i class="fas fa-cut text-5xl text-white" style="animation: cut 2s ease-in-out infinite;"></i>
-                </div>
-                
-                <h1 class="font-display text-5xl md:text-6xl font-black text-gray-900 mb-3">
-                    BARBERSHOP <span style="background: linear-gradient(135deg, #3b82f6, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CLOUD SYSTEM</span>
-                </h1>
-                
-                <p class="text-xl text-gray-600 mb-8">Multi-Device Real-time Synchronization ☁️</p>
-                
-                <!-- Loyalty Program Banner -->
-                <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-8 inline-block shadow-2xl">
-                    <div class="flex items-center gap-3 mb-4">
-                        <i class="fas fa-crown text-3xl text-yellow-400"></i>
-                        <h2 class="font-display text-2xl md:text-3xl font-bold text-white">PROGRAM LOYALITAS</h2>
-                        <i class="fas fa-crown text-3xl text-yellow-400"></i>
-                    </div>
-                    <p class="text-3xl font-black text-yellow-400 mb-4">CUKUR 5x GRATIS 1x 🎁</p>
+                <div class="relative z-10">
+                    <img src="https://z-cdn-media.chatglm.cn/files/4bb79712-c1ed-44da-8552-cfa5739cad5d.png?auth_key=1877032435-d0e56084b4a64623bf5328afb3481d8c-0-c11b20cdc4ba3702e1c1b272a9fc6eaa" alt="HAIRSPACE Logo" class="logo-medium mx-auto mb-6 shadow-2xl float-cloud rounded-lg">
                     
-                    <!-- Progress Visualization -->
-                    <div class="flex items-center justify-center gap-2 mt-6">
-                        <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">1</div>
-                        <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">2</div>
-                        <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">3</div>
-                        <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">4</div>
-                        <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">5</div>
-                        <i class="fas fa-arrow-right text-2xl text-yellow-400 mx-2"></i>
-                        <div class="w-14 h-14 rounded-full bg-red-500 flex items-center justify-center border-4 border-white animate-pulse shadow-lg">
-                            <i class="fas fa-gift text-xl text-white"></i>
+                    <h1 class="font-display text-5xl md:text-6xl font-black text-gray-900 mb-3">
+                        HAIRSPACE <span style="background: linear-gradient(135deg, #dc2626, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ULTIMATE</span>
+                    </h1>
+                    
+                    <p class="text-xl text-gray-600 mb-8">Multi-Device • Real-time Sync • Smart Notifications ☁️</p>
+                    
+                    <!-- Loyalty Program Banner -->
+                    <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-8 inline-block shadow-2xl">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-crown text-3xl text-yellow-400"></i>
+                            <h2 class="font-display text-2xl md:text-3xl font-bold text-white">PROGRAM LOYALITAS</h2>
+                            <i class="fas fa-crown text-3xl text-yellow-400"></i>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ========== STATISTICS CARDS ========== -->
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            <!-- Total Customers -->
-            <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-users text-2xl text-blue-600"></i>
-                    </div>
-                    <span class="text-xs font-bold text-green-500 bg-green-100 px-2 py-1 rounded-full">LIVE</span>
-                </div>
-                <p class="text-4xl font-black text-gray-900" id="statTotalCustomers">0</p>
-                <p class="text-sm text-gray-600 mt-1">Total Customer Terdaftar</p>
-            </div>
-
-            <!-- Total Visits -->
-            <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-cut text-2xl text-purple-600"></i>
-                    </div>
-                    <span class="text-xs font-bold text-green-500 bg-green-100 px-2 py-1 rounded-full">LIVE</span>
-                </div>
-                <p class="text-4xl font-black text-gray-900" id="statTotalVisits">0</p>
-                <p class="text-sm text-gray-600 mt-1">Total Kunjungan</p>
-            </div>
-
-            <!-- Free Haircuts Given -->
-            <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-gift text-2xl text-red-600"></i>
-                    </div>
-                    <span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded-full animate-pulse">HOT</span>
-                </div>
-                <p class="text-4xl font-black text-gray-900" id="statFreeHaircuts">0</p>
-                <p class="text-sm text-gray-600 mt-1">Gratisan Diberikan</p>
-            </div>
-
-            <!-- Last Sync Time -->
-            <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-sync text-2xl text-green-600"></i>
-                    </div>
-                    <span id="syncBadge" class="text-xs font-bold text-blue-500 bg-blue-100 px-2 py-1 rounded-full">ACTIVE</span>
-                </div>
-                <p class="text-3xl font-black text-gray-900" id="lastSyncTime">--:--</p>
-                <p class="text-sm text-gray-600 mt-1">Last Sync Time</p>
-            </div>
-        </section>
-
-
-        <!-- ========== MAIN CONTENT GRID ========== -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- LEFT COLUMN: FORM INPUT -->
-            <div class="lg:col-span-1">
-                <div class="glass-card rounded-3xl p-8 sticky top-24 shadow-xl">
-                    
-                    <h3 class="font-display text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                        <i class="fas fa-user-plus text-blue-500 mr-3"></i>
-                        Registrasi Customer Baru
-                    </h3>
-
-                    <form id="customerForm" onsubmit="handleSubmitCustomer(event)" class="space-y-5">
+                        <p class="text-3xl font-black text-yellow-400 mb-4">CUKUR 5x GRATIS 1x 🎁</p>
                         
-                        <!-- Nama Lengkap -->
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-user text-blue-500 mr-1"></i>Nama Lengkap
-                            </label>
-                            <input type="text" id="inputNama" required
-                                   class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
-                                   placeholder="Nama customer...">
-                        </div>
-
-                        <!-- No HP / WhatsApp -->
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fab fa-whatsapp text-green-500 mr-1"></i>No. WhatsApp
-                            </label>
-                            <input type="tel" id="inputNoHP" required
-                                   class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
-                                   placeholder="08xxxxxxxxxx">
-                        </div>
-
-                        <!-- Upload Foto Rambut -->
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-camera text-blue-500 mr-1"></i>Foto Rambut Setelah Cukur
-                            </label>
-                            <div class="border-3 border-dashed border-blue-400 rounded-xl p-6 text-center cursor-pointer hover:bg-blue-50 transition-all duration-300"
-                                 onclick="document.getElementById('inputFoto').click()">
-                                
-                                <input type="file" id="inputFoto" accept="image/*" class="hidden" onchange="previewUploadImage(event)">
-                                
-                                <div id="uploadPlaceholder">
-                                    <i class="fas fa-cloud-upload-alt text-4xl text-blue-500 mb-2"></i>
-                                    <p class="text-sm font-semibold text-gray-700">Klik atau drag foto ke sini</p>
-                                    <p class="text-xs text-gray-500 mt-1">JPG/PNG • Max 5MB</p>
-                                </div>
-                                
-                                <div id="uploadPreviewContainer" class="hidden">
-                                    <img id="uploadPreviewImg" class="max-h-40 mx-auto rounded-lg shadow-md mb-2">
-                                    <button type="button" onclick="clearUploadImage()" class="text-red-500 text-sm font-semibold hover:text-red-700">
-                                        <i class="fas fa-trash mr-1"></i>Hapus Foto
-                                    </button>
-                                </div>
+                        <div class="flex items-center justify-center gap-2 mt-6">
+                            <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">1</div>
+                            <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">2</div>
+                            <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">3</div>
+                            <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">4</div>
+                            <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-gray-900 shadow-lg">5</div>
+                            <i class="fas fa-arrow-right text-2xl text-yellow-400 mx-2"></i>
+                            <div class="w-14 h-14 rounded-full bg-red-500 flex items-center justify-center border-4 border-white animate-pulse shadow-lg">
+                                <i class="fas fa-gift text-xl text-white"></i>
                             </div>
                         </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn-gold w-full py-4 rounded-xl text-lg uppercase tracking-wider font-bold shadow-lg">
-                            <i class="fas fa-cloud-upload-alt mr-2"></i>Simpan ke Cloud
-                        </button>
-                    </form>
-
-                    <!-- Quick Actions -->
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <p class="text-xs font-bold text-gray-500 mb-3">QUICK ACTIONS:</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="exportToCSV()" class="bg-green-50 hover:bg-green-100 text-green-700 py-2 rounded-lg text-sm font-semibold transition">
-                                <i class="fas fa-file-excel mr-1"></i>Export CSV
-                            </button>
-                            <button onclick="printAllData()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 rounded-lg text-sm font-semibold transition">
-                                <i class="fas fa-print mr-1"></i>Print All
-                            </button>
-                            <button onclick="forceSync()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 py-2 rounded-lg text-sm font-semibold transition">
-                                <i class="fas fa-sync mr-1"></i>Force Sync
-                            </button>
-                            <button onclick="confirmClearAll()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-semibold transition">
-                                <i class="fas fa-trash mr-1"></i>Hapus Semua
-                            </button>
-                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
+            <!-- Statistics Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-users text-2xl text-red-600"></i>
+                        </div>
+                        <span class="text-xs font-bold text-green-500 bg-green-100 px-2 py-1 rounded-full">LIVE</span>
+                    </div>
+                    <p class="text-4xl font-black text-gray-900" id="statTotalCustomers">0</p>
+                    <p class="text-sm text-gray-600 mt-1">Total Customer Terdaftar</p>
+                </div>
 
-            <!-- RIGHT COLUMN: DATA TABLE -->
-            <div class="lg:col-span-2">
-                <div class="glass-card rounded-3xl p-8 shadow-xl">
-                    
-                    <!-- Table Header with Search & Filter -->
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-                        <h3 class="font-display text-2xl font-bold text-gray-900 flex items-center">
-                            <i class="fas fa-database text-blue-500 mr-3"></i>
-                            Database Customer
-                            <span class="ml-3 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-bold" id="tableCountBadge">0 data</span>
+                <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-cut text-2xl text-purple-600"></i>
+                        </div>
+                        <span class="text-xs font-bold text-green-500 bg-green-100 px-2 py-1 rounded-full">LIVE</span>
+                    </div>
+                    <p class="text-4xl font-black text-gray-900" id="statTotalVisits">0</p>
+                    <p class="text-sm text-gray-600 mt-1">Total Kunjungan</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-yellow-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-gift text-2xl text-yellow-600"></i>
+                        </div>
+                        <span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded-full animate-pulse">HOT</span>
+                    </div>
+                    <p class="text-4xl font-black text-gray-900" id="statFreeHaircuts">0</p>
+                    <p class="text-sm text-gray-600 mt-1">Gratisan Diberikan</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform duration-300 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-bell text-2xl text-green-600"></i>
+                        </div>
+                        <span id="syncBadge" class="text-xs font-bold text-blue-500 bg-blue-100 px-2 py-1 rounded-full">ACTIVE</span>
+                    </div>
+                    <p class="text-3xl font-black text-gray-900" id="statNotificationsSent">0</p>
+                    <p class="text-sm text-gray-600 mt-1">Notifikasi Terkirim</p>
+                </div>
+            </section>
+
+            <!-- Form Input Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1">
+                    <div class="glass-card rounded-3xl p-8 sticky top-24 shadow-xl">
+                        
+                        <h3 class="font-display text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                            <i class="fas fa-user-plus text-red-500 mr-3"></i>
+                            Registrasi Customer Baru
                         </h3>
 
-                        <div class="flex gap-3 w-full md:w-auto">
+                        <form id="customerForm" onsubmit="handleSubmitCustomer(event)" class="space-y-5">
                             
-                            <!-- Search Input -->
-                            <div class="relative flex-1 md:w-64">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="searchInput" onkeyup="handleSearch()"
-                                       class="input-focus w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg text-sm"
-                                       placeholder="Cari nama/no HP...">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">
+                                    <i class="fas fa-user text-red-500 mr-1"></i>Nama Lengkap
+                                </label>
+                                <input type="text" id="inputNama" required
+                                       class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
+                                       placeholder="Nama customer...">
                             </div>
 
-                            <!-- Filter Select -->
-                            <select id="filterStatus" onchange="handleSearch()"
-                                    class="input-focus px-3 py-2 border-2 border-gray-200 rounded-lg text-sm font-semibold">
-                                <option value="all">Semua Status</option>
-                                <option value="active">Aktif</option>
-                                <option value="free">Berhak Gratis</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Table Container -->
-                    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="bg-gradient-to-r from-blue-900 to-blue-800 text-white">
-                                    <th class="px-4 py-3 text-left font-bold rounded-tl-xl">#</th>
-                                    <th class="px-4 py-3 text-left font-bold">Customer</th>
-                                    <th class="px-4 py-3 text-left font-bold hidden md:table-cell">WhatsApp</th>
-                                    <th class="px-4 py-3 text-center font-bold">Kunjungan</th>
-                                    <th class="px-4 py-3 text-center font-bold">Status</th>
-                                    <th class="px-4 py-3 text-center font-bold rounded-tr-xl">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="customerTableBody">
-                                <!-- Dynamic rows will be rendered here -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Empty State (No Data) -->
-                    <div id="emptyState" class="hidden text-center py-16">
-                        <i class="fas fa-inbox text-8xl text-gray-300 mb-4"></i>
-                        <h3 class="text-2xl font-bold text-gray-400">Belum Ada Data Customer</h3>
-                        <p class="text-gray-500 mt-2">Mulai tambahkan customer melalui form di samping →</p>
-                    </div>
-
-                    <!-- PAGINATION CONTROLS -->
-                    <div id="paginationContainer" class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                        
-                        <!-- Showing Info -->
-                        <div class="text-sm text-gray-600">
-                            Menampilkan <span id="showingFrom" class="font-bold text-blue-600">0</span>-<span id="showingTo" class="font-bold text-blue-600">0</span> dari <span id="totalItems" class="font-bold text-blue-600">0</span> data
-                        </div>
-
-                        <!-- Page Navigation Buttons -->
-                        <div class="flex items-center gap-2">
-                            <button onclick="goToPage('first')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-blue-500 disabled:opacity-30 disabled:cursor-not-allowed" id="btnFirst" title="Halaman Pertama">
-                                <i class="fas fa-angle-double-left"></i>
-                            </button>
-                            <button onclick="goToPage('prev')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-blue-500 disabled:opacity-30 disabled:cursor-not-allowed" id="btnPrev" title="Sebelumnya">
-                                <i class="fas fa-angle-left"></i>
-                            </button>
-                            
-                            <!-- Page Numbers Container -->
-                            <div id="pageNumbers" class="flex gap-1">
-                                <!-- Dynamic page buttons -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">
+                                    <i class="fab fa-whatsapp text-green-500 mr-1"></i>No. WhatsApp
+                                </label>
+                                <input type="tel" id="inputNoHP" required
+                                       class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
+                                       placeholder="08xxxxxxxxxx">
                             </div>
-                            
-                            <button onclick="goToPage('next')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-blue-500 disabled:opacity-30 disabled:cursor-not-allowed" id="btnNext" title="Selanjutnya">
-                                <i class="fas fa-angle-right"></i>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">
+                                    <i class="fas fa-camera text-red-500 mr-1"></i>Foto Rambut Setelah Cukur
+                                    <span class="text-xs text-gray-500">(Max 10MB)</span>
+                                </label>
+                                <div class="border-3 border-dashed border-red-400 rounded-xl p-6 text-center cursor-pointer hover:bg-red-50 transition-all duration-300"
+                                     onclick="document.getElementById('inputFoto').click()">
+                                    
+                                    <input type="file" id="inputFoto" accept="image/*" class="hidden" onchange="previewUploadImage(event)">
+                                    
+                                    <div id="uploadPlaceholder">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-red-500 mb-2"></i>
+                                        <p class="text-sm font-semibold text-gray-700">Klik atau drag foto ke sini</p>
+                                        <p class="text-xs text-gray-500 mt-1">JPG/PNG/WebP • Max 10MB</p>
+                                    </div>
+                                    
+                                    <div id="uploadPreviewContainer" class="hidden">
+                                        <img id="uploadPreviewImg" class="max-h-40 mx-auto rounded-lg shadow-md mb-2">
+                                        <button type="button" onclick="clearUploadImage()" class="text-red-500 text-sm font-semibold hover:text-red-700">
+                                            <i class="fas fa-trash mr-1"></i>Hapus Foto
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-hairspace w-full py-4 rounded-xl text-lg uppercase tracking-wider font-bold shadow-lg">
+                                <i class="fas fa-cloud-upload-alt mr-2"></i>Simpan ke Cloud
                             </button>
-                            <button onclick="goToPage('last')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-blue-500 disabled:opacity-30 disabled:cursor-not-allowed" id="btnLast" title="Halaman Terakhir">
-                                <i class="fas fa-angle-double-right"></i>
-                            </button>
+                        </form>
+
+                        <!-- Quick Actions -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <p class="text-xs font-bold text-gray-500 mb-3">QUICK ACTIONS:</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="exportToCSV()" class="bg-green-50 hover:bg-green-100 text-green-700 py-2 rounded-lg text-sm font-semibold transition">
+                                    <i class="fas fa-file-excel mr-1"></i>Export CSV
+                                </button>
+                                <button onclick="printAllData()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 rounded-lg text-sm font-semibold transition">
+                                    <i class="fas fa-print mr-1"></i>Print All
+                                </button>
+                                <button onclick="forceSync()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 py-2 rounded-lg text-sm font-semibold transition">
+                                    <i class="fas fa-sync mr-1"></i>Force Sync
+                                </button>
+                                <button onclick="confirmClearAll()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-semibold transition">
+                                    <i class="fas fa-trash mr-1"></i>Hapus Semua
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity / Mini Table -->
+                <div class="lg:col-span-2">
+                    <div class="glass-card rounded-3xl p-8 shadow-xl">
+                        <h3 class="font-display text-2xl font-bold text-gray-900 mb-6 flex items-center justify-between">
+                            <span><i class="fas fa-clock text-red-500 mr-3"></i>Aktivitas Terbaru</span>
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold" id="recentCountBadge">0 data</span>
+                        </h3>
+
+                        <div class="overflow-x-auto rounded-xl border border-gray-200">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="bg-gradient-to-r from-red-900 to-red-800 text-white">
+                                        <th class="px-4 py-3 text-left font-bold rounded-tl-xl">Customer</th>
+                                        <th class="px-4 py-3 text-left font-bold hidden md:table-cell">WhatsApp</th>
+                                        <th class="px-4 py-3 text-center font-bold">Kunjungan</th>
+                                        <th class="px-4 py-3 text-center font-bold">Status</th>
+                                        <th class="px-4 py-3 text-center font-bold rounded-tr-xl">Waktu</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentActivityBody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
                         </div>
 
-                        <!-- Per Page Selector -->
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-gray-600">Per halaman:</span>
-                            <select id="perPageSelect" onchange="changePerPage()" class="input-focus px-3 py-2 border-2 border-gray-200 rounded-lg text-sm font-semibold">
-                                <option value="5">5</option>
-                                <option value="10" selected>10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                            </select>
+                        <div id="emptyRecentState" class="hidden text-center py-12">
+                            <i class="fas fa-inbox text-6xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-400 font-semibold">Belum ada aktivitas</p>
                         </div>
+
+                        <div class="mt-6 text-center">
+                            <button onclick="switchTab('customers')" class="text-red-600 hover:text-red-800 font-semibold text-sm">
+                                Lihat Semua Data Customer →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========== TAB 2: ANALYTICS ========== -->
+        <div id="tab-analytics" class="tab-content">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Chart 1: Kunjungan Per Minggu -->
+                <div class="glass-card rounded-3xl p-8 shadow-xl">
+                    <h3 class="font-display text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-chart-bar text-blue-500 mr-3"></i>Kunjungan 7 Hari Terakhir
+                    </h3>
+                    <div class="relative" style="height: 300px;">
+                        <canvas id="weeklyVisitsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Pertumbuhan Customer -->
+                <div class="glass-card rounded-3xl p-8 shadow-xl">
+                    <h3 class="font-display text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-chart-line text-green-500 mr-3"></i>Pertumbuhan Customer
+                    </h3>
+                    <div class="relative" style="height: 300px;">
+                        <canvas id="customerGrowthChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 3: Distribusi Kunjungan -->
+                <div class="glass-card rounded-3xl p-8 shadow-xl">
+                    <h3 class="font-display text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-chart-pie text-purple-500 mr-3"></i>Distribusi Kunjungan per Customer
+                    </h3>
+                    <div class="relative" style="height: 300px;">
+                        <canvas id="visitDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 4: Gratisan per Bulan -->
+                <div class="glass-card rounded-3xl p-8 shadow-xl">
+                    <h3 class="font-display text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-gift text-yellow-500 mr-3"></i>Statistik Program Gratis
+                    </h3>
+                    <div class="relative" style="height: 300px;">
+                        <canvas id="freeHaircutsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <i class="fas fa-arrow-up text-4xl text-green-500 mb-3"></i>
+                    <p class="text-3xl font-black text-gray-900" id="avgVisitsPerCustomer">0</p>
+                    <p class="text-sm text-gray-600 mt-1">Rata-rata Kunjungan/Customer</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <i class="fas fa-star text-4xl text-yellow-500 mb-3"></i>
+                    <p class="text-3xl font-black text-gray-900" id="eligibleForFree">0</p>
+                    <p class="text-sm text-gray-600 mt-1">Customer Mendekat Gratis</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <i class="fas fa-calendar-check text-4xl text-blue-500 mb-3"></i>
+                    <p class="text-3xl font-black text-gray-900" id="todayVisits">0</p>
+                    <p class="text-sm text-gray-600 mt-1">Kunjungan Hari Ini</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ========== TAB 3: CUSTOMERS (Full Table) ========== -->
+        <div id="tab-customers" class="tab-content">
+            
+            <div class="glass-card rounded-3xl p-8 shadow-xl">
+                
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+                    <h3 class="font-display text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-database text-red-500 mr-3"></i>
+                        Database Customer Lengkap
+                        <span class="ml-3 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold" id="tableCountBadge">0 data</span>
+                    </h3>
+
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="searchInput" onkeyup="handleSearch()"
+                                   class="input-focus w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg text-sm"
+                                   placeholder="Cari nama/no HP...">
+                        </div>
+                        <select id="filterStatus" onchange="handleSearch()"
+                                class="input-focus px-3 py-2 border-2 border-gray-200 rounded-lg text-sm font-semibold">
+                            <option value="all">Semua Status</option>
+                            <option value="active">Aktif</option>
+                            <option value="free">Berhak Gratis</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-red-900 to-red-800 text-white">
+                                <th class="px-4 py-3 text-left font-bold rounded-tl-xl">#</th>
+                                <th class="px-4 py-3 text-left font-bold">Customer</th>
+                                <th class="px-4 py-3 text-left font-bold hidden md:table-cell">WhatsApp</th>
+                                <th class="px-4 py-3 text-center font-bold">Kunjungan</th>
+                                <th class="px-4 py-3 text-center font-bold">Status</th>
+                                <th class="px-4 py-3 text-center font-bold rounded-tr-xl">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="emptyState" class="hidden text-center py-16">
+                    <i class="fas fa-inbox text-8xl text-gray-300 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-400">Belum Ada Data Customer</h3>
+                    <p class="text-gray-500 mt-2">Mulai tambahkan customer melalui tab Dashboard</p>
+                </div>
+
+                <!-- Pagination -->
+                <div id="paginationContainer" class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-sm text-gray-600">
+                        Menampilkan <span id="showingFrom" class="font-bold text-red-600">0</span>-<span id="showingTo" class="font-bold text-red-600">0</span> dari <span id="totalItems" class="font-bold text-red-600">0</span> data
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="goToPage('first')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-red-500 disabled:opacity-30" id="btnFirst"><i class="fas fa-angle-double-left"></i></button>
+                        <button onclick="goToPage('prev')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-red-500 disabled:opacity-30" id="btnPrev"><i class="fas fa-angle-left"></i></button>
+                        <div id="pageNumbers" class="flex gap-1"></div>
+                        <button onclick="goToPage('next')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-red-500 disabled:opacity-30" id="btnNext"><i class="fas fa-angle-right"></i></button>
+                        <button onclick="goToPage('last')" class="page-btn px-3 py-2 border-2 border-gray-200 rounded-lg hover:border-red-500 disabled:opacity-30" id="btnLast"><i class="fas fa-angle-double-right"></i></button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">Per hal:</span>
+                        <select id="perPageSelect" onchange="changePerPage()" class="input-focus px-3 py-2 border-2 border-gray-200 rounded-lg text-sm font-semibold">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -607,81 +779,180 @@
         <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <i class="fas fa-check-circle text-6xl text-green-500"></i>
         </div>
-        <h3 class="font-display text-3xl font-bold text-gray-900 mb-3">Berhasil Disimpan! ☁️</h3>
-        <p class="text-gray-600 text-lg mb-2" id="successMessage">Data berhasil disimpan ke cloud!</p>
+        <h3 class="font-display text-3xl font-bold text-gray-900 mb-3">Berhasil! ☁️</h3>
+        <p class="text-gray-600 text-lg mb-2" id="successMessage">Data berhasil disimpan!</p>
         <p class="text-sm text-gray-500 mb-6" id="successSubmessage"></p>
-        <button onclick="closeModal('successModal')" class="btn-cloud w-full py-4 rounded-xl font-bold text-lg no-print">
-            Oke, Mengerti! 👍
-        </button>
+        <button onclick="closeModal('successModal')" class="btn-hairspace w-full py-4 rounded-xl font-bold text-lg no-print">Oke! 👍</button>
     </div>
 </div>
 
-<!-- QR Code Modal -->
-<div id="qrModal" class="fixed inset-0 z-[100] hidden modal-overlay flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl animate-slide-in">
-        <h3 class="font-display text-2xl font-bold text-gray-900 mb-2">
-            <i class="fas fa-qrcode text-blue-500 mr-2"></i>QR Code Customer
-        </h3>
-        <p class="text-gray-600 mb-6 font-semibold" id="qrCustomerName">Nama Customer</p>
-        
-        <div id="qrCodeContainer" class="bg-white p-4 rounded-xl inline-block mx-auto mb-6 shadow-inner border-2 border-gray-100">
-            <!-- QR Code will be generated here -->
-        </div>
-        
-        <p class="text-xs text-gray-500 mb-6">Scan QR code ini untuk melihat data customer</p>
-        
-        <div class="flex gap-3 justify-center no-print">
-            <button onclick="downloadQRCode()" class="btn-gold px-6 py-3 rounded-xl font-bold">
-                <i class="fas fa-download mr-2"></i>Download QR
-            </button>
-            <button onclick="closeModal('qrModal')" class="btn-cloud px-6 py-3 rounded-xl font-bold">
-                Tutup
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Struk/Bukti Kunjungan Modal -->
-<div id="strukModal" class="fixed inset-0 z-[100] hidden modal-overlay flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full animate-slide-in shadow-2xl my-8">
+<!-- Notification Settings Modal -->
+<div id="notificationSettingsModal" class="fixed inset-0 z-[100] hidden modal-overlay flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl p-8 md:p-10 max-w-2xl w-full shadow-2xl animate-slide-in my-8">
         
         <div class="flex items-center justify-between mb-6">
             <h3 class="font-display text-2xl font-bold text-gray-900">
-                <i class="fas fa-receipt text-blue-500 mr-2"></i>Bukti Kunjungan
+                <i class="fas fa-bell text-yellow-500 mr-2"></i>Pengaturan Notifikasi
             </h3>
-            <button onclick="closeModal('strukModal')" class="text-gray-400 hover:text-gray-600 text-2xl no-print">
+            <button onclick="closeModal('notificationSettingsModal')" class="text-gray-400 hover:text-gray-600 text-2xl">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
-        <!-- Print Area (Struk) -->
-        <div id="printArea" class="struk-container mx-auto shadow-2xl rounded-lg border-2 border-gray-200">
-            <!-- Struk content will be generated dynamically -->
+
+        <div class="space-y-6">
+            
+            <!-- WhatsApp Notification -->
+            <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fab fa-whatsapp text-3xl text-green-600"></i>
+                    <h4 class="font-bold text-lg text-green-800">Notifikasi WhatsApp</h4>
+                </div>
+                <p class="text-sm text-green-700 mb-4">Kirim pesan WhatsApp otomatis saat customer dapat potongan gratis</p>
+                
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="enableWhatsAppNotif" checked class="w-5 h-5 text-green-600 rounded">
+                        <span class="font-semibold text-gray-800">Aktifkan Notifikasi WhatsApp</span>
+                    </label>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Pesan Template:</label>
+                        <textarea id="whatsappMessageTemplate" rows="3" class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm"
+                                  placeholder="Pesan yang akan dikirim...">🎉 SELAMAT {nama}!
+
+Anda telah menyelesaikan {total_visits} kunjungan di HAIRSPACE!
+
+🎁 Anda mendapat 1 POTONGAN GRATIS!
+
+Tunjukkan pesan ini ke kasir untuk klaim hadiahnya.
+
+Terima kasih telah setia bersama HAIRSPACE! ✂️</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Notification -->
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-envelope text-3xl text-blue-600"></i>
+                    <h4 class="font-bold text-lg text-blue-800">Notifikasi Email (Owner)</h4>
+                </div>
+                <p class="text-sm text-blue-700 mb-4">Kirim email notifikasi ke owner saat ada customer dapat gratis</p>
+                
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="enableEmailNotif" checked class="w-5 h-5 text-blue-600 rounded">
+                        <span class="font-semibold text-gray-800">Aktifkan Email Notifikasi</span>
+                    </label>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Email Owner:</label>
+                        <input type="email" id="ownerEmail" class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl"
+                               placeholder="owner@example.com" value="">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Browser Notification -->
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-desktop text-3xl text-yellow-600"></i>
+                    <h4 class="font-bold text-lg text-yellow-800">Notifikasi Browser</h4>
+                </div>
+                <p class="text-sm text-yellow-700 mb-4">Popup notifikasi di browser saat ada event penting</p>
+                
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="enableBrowserNotif" checked class="w-5 h-5 text-yellow-600 rounded">
+                        <span class="font-semibold text-gray-800">Aktifkan Browser Notification</span>
+                    </label>
+                    
+                    <button onclick="requestBrowserNotificationPermission()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-semibold transition">
+                        <i class="fas fa-check-circle mr-2"></i>Izin Notifikasi Browser
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <div class="mt-6 flex gap-3 justify-center no-print">
-            <button onclick="executePrint()" class="btn-gold px-8 py-3 rounded-xl font-bold">
-                <i class="fas fa-print mr-2"></i>Cetak Struk
+
+        <div class="mt-6 pt-6 border-t border-gray-200 flex gap-3">
+            <button onclick="saveNotificationSettings()" class="btn-green flex-1 py-4 rounded-xl font-bold text-lg">
+                <i class="fas fa-save mr-2"></i>Simpan Pengaturan
             </button>
-            <button onclick="closeModal('strukModal')" class="btn-cloud px-8 py-3 rounded-xl font-bold">
+            <button onclick="closeModal('notificationSettingsModal')" class="btn-hairspace flex-1 py-4 rounded-xl font-bold text-lg">
                 Tutup
             </button>
         </div>
     </div>
 </div>
 
-<!-- Image Lightbox Modal -->
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="fixed inset-0 z-[100] hidden modal-overlay flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full shadow-2xl animate-slide-in">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-key text-3xl text-yellow-600"></i>
+            </div>
+            <h3 class="font-display text-2xl font-bold text-gray-900">Ganti Password Admin</h3>
+            <p class="text-sm text-gray-500 mt-2">Perbarui password login dashboard Anda</p>
+        </div>
+
+        <form id="changePasswordForm" onsubmit="handleChangePassword(event)" class="space-y-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fas fa-lock mr-2 text-yellow-600"></i>Password Lama</label>
+                <input type="password" id="oldPassword" required class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="Masukkan password lama">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fas fa-lock-open mr-2 text-green-600"></i>Password Baru</label>
+                <input type="password" id="newPassword" required minlength="4" class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="Minimal 4 karakter">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fas fa-lock mr-2 text-blue-600"></i>Konfirmasi Password Baru</label>
+                <input type="password" id="confirmNewPassword" required class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl" placeholder="Ulangi password baru">
+            </div>
+            <div id="changePasswordStatus" class="hidden rounded-lg p-3 text-sm font-semibold text-center"></div>
+            <button type="submit" class="btn-hairspace w-full py-4 rounded-xl font-bold text-lg"><i class="fas fa-save mr-2"></i>Update Password</button>
+        </form>
+        <button onclick="closeModal('changePasswordModal')" class="w-full mt-3 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition no-print">Batal</button>
+    </div>
+</div>
+
+<!-- Struk Modal -->
+<div id="strukModal" class="fixed inset-0 z-[100] hidden modal-overlay flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl p-8 max-w-lg w-full animate-slide-in shadow-2xl my-8">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-display text-2xl font-bold text-gray-900"><i class="fas fa-receipt text-red-500 mr-2"></i>Bukti Kunjungan</h3>
+            <button onclick="closeModal('strukModal')" class="text-gray-400 hover:text-gray-600 text-2xl no-print"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="printArea" class="struk-container mx-auto shadow-2xl rounded-lg border-2 border-gray-200"></div>
+        <div class="mt-6 flex gap-3 justify-center no-print">
+            <button onclick="executePrint()" class="btn-gold px-8 py-3 rounded-xl font-bold"><i class="fas fa-print mr-2"></i>Cetak Struk</button>
+            <button onclick="closeModal('strukModal')" class="btn-cloud px-8 py-3 rounded-xl font-bold">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Lightbox -->
 <div id="imageLightbox" class="fixed inset-0 z-[100] hidden modal-overlay flex items-center justify-center p-4" onclick="closeModal('imageLightbox')">
     <img id="lightboxImg" src="" alt="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl">
+</div>
+
+<!-- Notification Panel (Sidebar) -->
+<div id="notificationPanel" class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-[200] transform translate-x-full transition-transform duration-300">
+    <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="font-display text-xl font-bold text-gray-900"><i class="fas fa-bell text-yellow-500 mr-2"></i>Notifikasi</h3>
+        <button onclick="closeNotificationPanel()" class="text-gray-400 hover:text-gray-600 text-2xl"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="notificationList" class="overflow-y-auto" style="height: calc(100% - 80px);">
+        <!-- Notifications will be rendered here -->
+    </div>
 </div>
 
 
 <!-- ==================== JAVASCRIPT ==================== -->
 <script>
 // ==========================================
-// ⚡ FIREBASE CONFIGURATION (SUDAH INCLUDE!)
+// FIREBASE CONFIGURATION
 // ==========================================
-// Config Anda sudah ditambahkan otomatis di bawah ini
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7K9w87moRKFW55Me09ucYFMk7pwb-ntw",
@@ -693,48 +964,56 @@ const firebaseConfig = {
   appId: "1:889697190280:web:abfda519f56317dd0e7a3d"
 };
 
-// Initialize Firebase
 let db = null;
 
 try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
-    console.log('✅ Firebase initialized successfully!');
+    console.log('✅ Firebase initialized!');
 } catch (error) {
-    console.error('❌ Firebase initialization error:', error);
+    console.error('❌ Firebase error:', error);
 }
 
 
 // ==========================================
-// GLOBAL STATE VARIABLES
+// GLOBAL STATE
 // ==========================================
 
 let customers = [];
 let filteredCustomers = [];
 let currentPage = 1;
-let lastAddedCustomerId = null;
+let notifications = [];
+let notificationsSentCount = 0;
+let chartsInitialized = false;
+
+// Chart instances
+let weeklyVisitsChart = null;
+let customerGrowthChart = null;
+let visitDistributionChart = null;
+let freeHaircutsChart = null;
 
 
 // ==========================================
-// INITIALIZATION & LOADING
+// INITIALIZATION
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Simulate loading for better UX
     setTimeout(() => {
         document.getElementById('loadingScreen').style.display = 'none';
         checkAuthState();
     }, 1500);
+    
+    // Load saved notification settings
+    loadNotificationSettings();
 });
 
 
 // ==========================================
-// AUTHENTICATION SYSTEM
+// AUTHENTICATION
 // ==========================================
 
 function checkAuthState() {
-    const isLoggedIn = sessionStorage.getItem('barbershop_cloud_logged_in');
-    
+    const isLoggedIn = sessionStorage.getItem('hairspace_cloud_logged_in');
     if (isLoggedIn === 'true') {
         showDashboard();
     } else {
@@ -742,27 +1021,25 @@ function checkAuthState() {
     }
 }
 
-function handleLogin(event) {
-    event.preventDefault();
-    
+function handleLogin(e) {
+    e.preventDefault();
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     
-    // Default credentials (bisa diganti nanti)
-    const validUsername = localStorage.getItem('barber_admin_user') || 'admin';
-    const validPassword = localStorage.getItem('barber_admin_pass') || 'barber123';
+    const validUser = localStorage.getItem('hairspace_admin_user') || 'admin';
+    const validPass = localStorage.getItem('hairspace_admin_pass') || 'barber123';
     
-    if (username === validUsername && password === validPassword) {
-        sessionStorage.setItem('barbershop_cloud_logged_in', 'true');
+    if (username === validUser && password === validPass) {
+        sessionStorage.setItem('hairspace_cloud_logged_in', 'true');
         showDashboard();
     } else {
-        alert('❌ Username atau password salah!\n\nDefault: admin / barber123');
+        alert('❌ Username atau password salah!\nDefault: admin / barber123');
         shakeElement(document.getElementById('loginForm'));
     }
 }
 
 function handleLogout() {
-    sessionStorage.removeItem('barbershop_cloud_logged_in');
+    sessionStorage.removeItem('hairspace_cloud_logged_in');
     hideUserMenu();
     showLoginPage();
 }
@@ -775,133 +1052,375 @@ function showLoginPage() {
 function showDashboard() {
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('dashboardPage').classList.remove('hidden');
-    
-    // Load data from Firebase
     loadCustomersFromFirebase();
-    
-    // Monitor connection status
     monitorOnlineStatus();
+    
+    // Request browser notification permission
+    if (Notification.permission === 'default' && localStorage.getItem('browser_notif_enabled') === 'true') {
+        requestBrowserNotificationPermission();
+    }
 }
 
+
+// ==========================================
+// CHANGE PASSWORD
+// ==========================================
+
+function openChangePasswordModal() {
+    hideUserMenu();
+    document.getElementById('changePasswordForm').reset();
+    document.getElementById('changePasswordStatus').classList.add('hidden');
+    document.getElementById('changePasswordModal').classList.remove('hidden');
+}
+
+function handleChangePassword(e) {
+    e.preventDefault();
+    const oldPass = document.getElementById('oldPassword').value;
+    const newPass = document.getElementById('newPassword').value;
+    const confirmPass = document.getElementById('confirmNewPassword').value;
+    const statusEl = document.getElementById('changePasswordStatus');
+    
+    const currentPass = localStorage.getItem('hairspace_admin_pass') || 'barber123';
+    
+    if (oldPass !== currentPass) {
+        showChangePasswordStatus('error', '❌ Password lama salah!');
+        return;
+    }
+    if (newPass.length < 4) {
+        showChangePasswordStatus('error', '❌ Password baru minimal 4 karakter!');
+        return;
+    }
+    if (newPass !== confirmPass) {
+        showChangePasswordStatus('error', '❌ Konfirmasi tidak cocok!');
+        return;
+    }
+    
+    localStorage.setItem('hairspace_admin_pass', newPass);
+    showChangePasswordStatus('success', '✅ Password berhasil diubah! Login ulang...');
+    
+    setTimeout(() => {
+        closeModal('changePasswordModal');
+        handleLogout();
+    }, 2000);
+}
+
+function showChangePasswordStatus(type, message) {
+    const el = document.getElementById('changePasswordStatus');
+    el.className = `rounded-lg p-3 text-sm font-semibold text-center ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+    el.textContent = message;
+    el.classList.remove('hidden');
+}
+
+
+// ==========================================
+// NOTIFICATION SYSTEM
+// ==========================================
+
+function loadNotificationSettings() {
+    const settings = JSON.parse(localStorage.getItem('hairspace_notif_settings')) || {};
+    
+    document.getElementById('enableWhatsAppNotif').checked = settings.whatsapp !== false;
+    document.getElementById('enableEmailNotif').checked = settings.email !== false;
+    document.getElementById('enableBrowserNotif').checked = settings.browser !== false;
+    document.getElementById('ownerEmail').value = settings.ownerEmail || '';
+    document.getElementById('whatsappMessageTemplate').value = settings.whatsappTemplate || `🎉 SELAMAT {nama}!
+
+Anda telah menyelesaikan {total_visits} kunjungan di HAIRSPACE!
+
+🎁 Anda mendapat 1 POTONGAN GRATIS!
+
+Tunjukkan pesan ini ke kasir untuk klaim hadiahnya.
+
+Terima kasih telah setia bersama HAIRSPACE! ✂️`;
+}
+
+function saveNotificationSettings() {
+    const settings = {
+        whatsapp: document.getElementById('enableWhatsAppNotif').checked,
+        email: document.getElementById('enableEmailNotif').checked,
+        browser: document.getElementById('enableBrowserNotif').checked,
+        ownerEmail: document.getElementById('ownerEmail').value,
+        whatsappTemplate: document.getElementById('whatsappMessageTemplate').value
+    };
+    
+    localStorage.setItem('hairspace_notif_settings', JSON.stringify(settings));
+    localStorage.setItem('browser_notif_enabled', settings.browser);
+    
+    alert('✅ Pengaturan notifikasi berhasil disimpan!');
+    closeModal('notificationSettingsModal');
+}
+
+function openNotificationSettingsModal() {
+    hideUserMenu();
+    loadNotificationSettings();
+    document.getElementById('notificationSettingsModal').classList.remove('hidden');
+}
+
+function sendNotification(customerData) {
+    const settings = JSON.parse(localStorage.getItem('hairspace_notif_settings')) || {};
+    
+    // Add to notification list
+    const notif = {
+        id: Date.now(),
+        type: 'free_haircut',
+        title: `🎁 ${customerData.nama} Berhak GRATIS!`,
+        message: `${customerData.nama} telah mencapai ${customerData.visits} kunjungan`,
+        customer: customerData,
+        timestamp: new Date().toISOString(),
+        read: false
+    };
+    
+    notifications.unshift(notif);
+    updateNotificationBadge();
+    renderNotificationList();
+    
+    notificationsSentCount++;
+    document.getElementById('statNotificationsSent').textContent = notificationsSentCount;
+    
+    // Browser Notification
+    if (settings.browser !== false && Notification.permission === 'granted') {
+        new Notification('🎁 HAIRSPACE - Customer Berhak Gratis!', {
+            body: `${customerData.nama} (${customerData.visits} kunjungan)`,
+            icon: 'https://z-cdn-media.chatglm.cn/files/4bb79712-c1ed-44da-8552-cfa5739cad5d.png?auth_key=1877032435-d0e56084b4a64623bf5328afb3481d8c-0-c11b20cdc4ba3702e1c1b272a9fc6eaa',
+            tag: 'hairspace-free-' + customerData.id
+        });
+    }
+    
+    // WhatsApp Notification (open WA link)
+    if (settings.whatsapp !== false) {
+        let message = settings.whatsappTemplate || `🎉 SELAMAT {nama}! Anda berhak dapat POTONGAN GRATIS di HAIRSPACE!`;
+        message = message.replace('{nama}', customerData.nama)
+                         .replace('{total_visits}', customerData.visits)
+                         .replace('{no_hp}', customerData.nohp);
+        
+        // Open WhatsApp with pre-filled message (delayed so user sees success first)
+        setTimeout(() => {
+            window.open(`https://wa.me/${customerData.nohp}?text=${encodeURIComponent(message)}`, '_blank');
+        }, 1500);
+    }
+    
+    // Log notification
+    console.log(`📧 Notification sent for ${customerData.nama}:`, notif);
+}
+
+function requestBrowserNotificationPermission() {
+    if (!('Notification' in window)) {
+        alert('Browser ini tidak support notifikasi!');
+        return;
+    }
+    
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            alert('✅ Notifikasi browser diaktifkan!');
+        }
+    });
+}
+
+function updateNotificationBadge() {
+    const unreadCount = notifications.filter(n => !n.read).length;
+    const badge = document.getElementById('notificationBadge');
+    
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+function renderNotificationList() {
+    const container = document.getElementById('notificationList');
+    
+    if (notifications.length === 0) {
+        container.innerHTML = `
+            <div class="p-8 text-center text-gray-500">
+                <i class="fas fa-bell-slash text-6xl mb-4 opacity-30"></i>
+                <p>Belum ada notifikasi</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = notifications.map(notif => `
+        <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${notif.read ? 'opacity-60' : ''}" onclick="markAsRead(${notif.id})">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full ${notif.type === 'free_haircut' ? 'bg-red-100' : 'bg-blue-100'} flex items-center justify-center flex-shrink-0">
+                    <i class="fas ${notif.type === 'free_haircut' ? 'fa-gift text-red-600' : 'fa-info text-blue-600'}"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-900 text-sm">${notif.title}</p>
+                    <p class="text-xs text-gray-500 mt-1">${notif.message}</p>
+                    <p class="text-xs text-gray-400 mt-2">${new Date(notif.timestamp).toLocaleString('id-ID')}</p>
+                </div>
+                ${!notif.read ? '<div class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0 mt-2"></div>' : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function markAsRead(notifId) {
+    const notif = notifications.find(n => n.id === notifId);
+    if (notif) {
+        notif.read = true;
+        updateNotificationBadge();
+        renderNotificationList();
+    }
+}
+
+function openNotificationPanel() {
+    renderNotificationList();
+    document.getElementById('notificationPanel').classList.remove('translate-x-full');
+}
+
+function closeNotificationPanel() {
+    document.getElementById('notificationPanel').classList.add('translate-x-full');
+}
+
+
+// ==========================================
+// USER MENU
+// ==========================================
+
 function toggleUserMenu() {
-    const menu = document.getElementById('userMenuDropdown');
-    menu.classList.toggle('hidden');
+    document.getElementById('userMenuDropdown').classList.toggle('hidden');
 }
 
 function hideUserMenu() {
     document.getElementById('userMenuDropdown').classList.add('hidden');
 }
 
-// Close dropdown when clicking outside
 document.addEventListener('click', function(e) {
     const menu = document.getElementById('userMenuDropdown');
     const btn = e.target.closest('[onclick="toggleUserMenu()"]');
-    
-    if (!btn && !menu.contains(e.target)) {
-        hideUserMenu();
-    }
+    if (!btn && !menu.contains(e.target)) hideUserMenu();
 });
 
 
 // ==========================================
-// FIREBASE DATABASE OPERATIONS
+// TAB NAVIGATION
+// ==========================================
+
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.tab === tabName) btn.classList.add('active');
+    });
+    
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    
+    // Refresh analytics when switching to analytics tab
+    if (tabName === 'analytics') {
+        setTimeout(() => updateAnalyticsCharts(), 100);
+    }
+    
+    // Render table when switching to customers tab
+    if (tabName === 'customers') {
+        renderTable();
+    }
+}
+
+
+// ==========================================
+// FIREBASE OPERATIONS
 // ==========================================
 
 function loadCustomersFromFirebase() {
-    if (!db) {
-        alert('❌ Firebase belum terinisialisasi!\nPeriksa config.');
-        return;
-    }
+    if (!db) { alert('❌ Firebase belum terinisialisasi!'); return; }
     
     showSyncLoading(true);
     
-    // Realtime listener - auto update when data changes!
     db.ref('customers').on('value', (snapshot) => {
         const data = snapshot.val();
         
         if (data) {
-            // Convert object to array
-            customers = Object.keys(data).map(key => ({
-                id: key,
-                ...data[key]
-            }));
+            customers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
         } else {
             customers = [];
         }
         
         filteredCustomers = [...customers];
         
-        // Update all UI components
         updateStatistics();
         updateNavStats();
         renderTable();
+        renderRecentActivity();
         updateLastSyncTime();
+        updateAnalyticsCharts();
         
         showSyncLoading(false);
         showSyncSuccess();
         
-        console.log(`☁️ Loaded ${customers.length} customers from Firebase`);
-        
+        console.log(`☁️ Loaded ${customers.length} customers`);
     }, (error) => {
-        console.error('❌ Firebase read error:', error);
+        console.error('❌ Firebase error:', error);
         showSyncError();
-        alert('❌ Gagal memuat data dari Firebase!\nError: ' + error.message);
     });
 }
 
-function saveCustomerToFirebase(customerData) {
+function saveCustomerToFirebase(data) {
     return new Promise((resolve, reject) => {
-        if (!db) {
-            reject(new Error('Firebase not initialized'));
-            return;
-        }
-        
+        if (!db) return reject(new Error('No DB'));
         showSyncLoading(true);
-        
-        // Use customer ID as the key in Firebase
-        db.ref('customers/' + customerData.id).set(customerData)
-            .then(() => {
-                console.log('💾 Saved to Firebase:', customerData.nama);
-                showSyncSuccess();
-                resolve(customerData);
-            })
-            .catch((error) => {
-                console.error('❌ Save error:', error);
-                showSyncError();
-                reject(error);
-            });
+        db.ref('customers/' + data.id).set(data)
+            .then(() => { showSyncSuccess(); resolve(data); })
+            .catch(err => { showSyncError(); reject(err); });
     });
 }
 
-function deleteCustomerFromFirebase(customerId) {
-    if (!db) return Promise.reject('Firebase not initialized');
-    
-    return db.ref('customers/' + customerId).remove()
-        .then(() => {
-            console.log('🗑️ Deleted from Firebase:', customerId);
-        })
-        .catch(err => console.error('Delete error:', err));
+function deleteCustomerFromFirebase(id) {
+    if (!db) return Promise.reject('No DB');
+    return db.ref('customers/' + id).remove();
 }
 
 function clearAllFromFirebase() {
-    if (!db) return Promise.reject('Firebase not initialized');
-    
-    return db.ref('customers').remove()
-        .then(() => {
-            console.log('🧹 Cleared all data from Firebase');
-        });
+    if (!db) return Promise.reject('No DB');
+    return db.ref('customers').remove();
 }
 
 
 // ==========================================
-// ONLINE STATUS MONITORING
+// SYNC UI
 // ==========================================
+
+function showSyncLoading(show) {
+    const icon = document.getElementById('syncIcon');
+    const text = document.getElementById('syncText');
+    if (show) {
+        icon.className = 'fas fa-spinner fa-spin text-blue-400';
+        text.textContent = 'Syncing...';
+    }
+}
+
+function showSyncSuccess() {
+    document.getElementById('syncIcon').className = 'fas fa-check-circle text-green-400';
+    document.getElementById('syncText').textContent = 'Synced';
+}
+
+function showSyncError() {
+    document.getElementById('syncIcon').className = 'fas fa-exclamation-triangle text-red-400';
+    document.getElementById('syncText').textContent = 'Error';
+}
+
+function updateLastSyncTime() {
+    document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+
+function forceSync() {
+    if (!db) { alert('⚠️ Firebase tidak tersedia!'); return; }
+    showSyncLoading(true);
+    loadCustomersFromFirebase();
+    setTimeout(() => alert('✅ Force sync completed!'), 1000);
+}
 
 function monitorOnlineStatus() {
     const dot = document.getElementById('onlineDot');
     const text = document.getElementById('connectionText');
-    
-    function updateStatus() {
+    function update() {
         if (navigator.onLine) {
             dot.className = 'online-indicator online pulse-dot';
             text.textContent = 'Online • Connected';
@@ -912,185 +1431,99 @@ function monitorOnlineStatus() {
             text.className = 'text-sm font-semibold text-orange-400';
         }
     }
-    
-    window.addEventListener('online', updateStatus);
-    window.addEventListener('offline', updateStatus);
-    updateStatus();
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    update();
 }
 
 
 // ==========================================
-// SYNC UI INDICATORS
+// FORM HANDLING
 // ==========================================
 
-function showSyncLoading(show) {
-    const icon = document.getElementById('syncIcon');
-    const text = document.getElementById('syncText');
-    const badge = document.getElementById('syncBadge');
-    
-    if (show) {
-        icon.className = 'fas fa-spinner fa-spin text-blue-400';
-        text.textContent = 'Syncing...';
-        badge.textContent = 'SYNC';
-        badge.className = 'text-xs font-bold text-blue-500 bg-blue-100 px-2 py-1 rounded-full animate-pulse';
-    }
-}
-
-function showSyncSuccess() {
-    const icon = document.getElementById('syncIcon');
-    const text = document.getElementById('syncText');
-    const badge = document.getElementById('syncBadge');
-    
-    icon.className = 'fas fa-check-circle text-green-400';
-    text.textContent = 'Synced';
-    badge.textContent = 'OK';
-    badge.className = 'text-xs font-bold text-green-500 bg-green-100 px-2 py-1 rounded-full';
-}
-
-function showSyncError() {
-    const icon = document.getElementById('syncIcon');
-    const text = document.getElementById('syncText');
-    
-    icon.className = 'fas fa-exclamation-triangle text-red-400';
-    text.textContent = 'Error';
-}
-
-function updateLastSyncTime() {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('lastSyncTime').textContent = timeStr;
-}
-
-function forceSync() {
-    if (!db) {
-        alert('⚠️ Firebase tidak tersedia!');
-        return;
-    }
-    
-    showSyncLoading(true);
-    
-    // Re-load data from Firebase
-    loadCustomersFromFirebase();
-    
-    setTimeout(() => {
-        alert('✅ Force sync completed!\nData terbaru dari cloud.');
-    }, 1000);
-}
-
-
-// ==========================================
-// FORM HANDLING - ADD/UPDATE CUSTOMER
-// ==========================================
-
-function handleSubmitCustomer(event) {
-    event.preventDefault();
-    
+function handleSubmitCustomer(e) {
+    e.preventDefault();
     const nama = document.getElementById('inputNama').value.trim();
     const nohp = document.getElementById('inputNoHP').value.trim();
     const fotoInput = document.getElementById('inputFoto');
     
     let fotoData = null;
-    
-    // Handle image upload
     if (fotoInput.files && fotoInput.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            fotoData = e.target.result;
-            processAndSaveCustomer(nama, nohp, fotoData);
-        };
+        reader.onload = (ev) => { fotoData = ev.target.result; processAndSave(nama, nohp, fotoData); };
         reader.readAsDataURL(fotoInput.files[0]);
     } else {
-        processAndSaveCustomer(nama, nohp, null);
+        processAndSave(nama, nohp, null);
     }
 }
 
-async function processAndSaveCustomer(nama, nohp, fotoData) {
-    // Check if customer already exists (by phone number)
-    const existingIndex = customers.findIndex(c => c.nohp === nohp);
+async function processAndSave(nama, nohp, fotoData) {
+    const existingIdx = customers.findIndex(c => c.nohp === nohp);
+    let cust;
     
-    let customerData;
-    
-    if (existingIndex !== -1) {
-        // UPDATE EXISTING CUSTOMER
-        customers[existingIndex].visits += 1;
-        customers[existingIndex].terakhirKunjungan = new Date().toISOString();
-        if (fotoData) {
-            customers[existingIndex].foto = fotoData;
-        }
+    if (existingIdx !== -1) {
+        customers[existingIdx].visits += 1;
+        customers[existingIdx].terakhirKunjungan = new Date().toISOString();
+        if (fotoData) customers[existingIdx].foto = fotoData;
+        cust = { ...customers[existingIdx] };
         
-        customerData = { ...customers[existingIndex] };
+        const isFree = cust.visits % 5 === 0;
+        lastAddedCustomerId = cust.id;
         
-        const totalVisits = customerData.visits;
-        const isEligibleForFree = totalVisits % 5 === 0;
-        
-        lastAddedCustomerId = customerData.id;
-        
-        // Show success message
         showSuccessModal(
-            `✅ Kunjungan "${nama}" berhasil dicatat!`,
-            `Total kunjungan: ${totalVisits}x${isEligibleForFree ? '\n\n🎉 BERHAK DAPAT POTONGAN GRATIS!' : ''}`
+            `✅ Kunjungan "${nama}" dicatat!`,
+            `Total: ${cust.visits}x${isFree ? '\n\n🎉 BERHAK GRATIS!' : ''}`
         );
         
-        // Alert if eligible for free haircut
-        if (isEligibleForFree) {
+        if (isFree) {
             setTimeout(() => {
-                alert(`🎊🎊🎊 SELAMAT!!! 🎊🎊🎊\n\n${nama} telah menyelesaikan ${totalVisits} kunjungan!\n\n🎁 MENDAPATKAN 1 POTONGAN GRATIS!\n\nInformasikan ke customer segera!`);
+                alert(`🎊 SELAMAT!!!\n\n${nama} - ${cust.visits} kunjungan\n\n🎁 MENDAPATKAN POTONGAN GRATIS!`);
+                sendNotification(cust); // SEND NOTIFICATION!
             }, 800);
         }
-        
     } else {
-        // ADD NEW CUSTOMER
-        customerData = {
-            id: Date.now().toString(), // Use timestamp as unique ID
-            nama: nama,
-            nohp: nohp,
+        cust = {
+            id: Date.now().toString(),
+            nama, nohp,
             visits: 1,
             foto: fotoData,
             tanggalDaftar: new Date().toLocaleDateString('id-ID'),
             terakhirKunjungan: new Date().toISOString()
         };
+        lastAddedCustomerId = cust.id;
         
-        lastAddedCustomerId = customerData.id;
-        
-        showSuccessModal(
-            `✅ Customer "${nama}" berhasil didaftarkan!`,
-            `Ini adalah kunjungan pertama (1/5)\nLagi 4x kunjungan lagi untuk GRATIS!`
-        );
+        showSuccessModal(`✅ "${nama}" didaftarkan!`, 'Kunjungan pertama (1/5)');
     }
     
-    // Save to Firebase
     try {
-        await saveCustomerToFirebase(customerData);
-        console.log('💾 Data saved to cloud successfully');
-    } catch (error) {
-        console.error('❌ Error saving to Firebase:', error);
-        alert('❌ Gagal menyimpan data ke cloud!\nError: ' + error.message);
+        await saveCustomerToFirebase(cust);
+    } catch (err) {
+        alert('❌ Gagal menyimpan!');
         return;
     }
     
-    // Reset form
     document.getElementById('customerForm').reset();
     clearUploadImage();
 }
 
 
 // ==========================================
-// IMAGE UPLOAD HANDLING
+// IMAGE UPLOAD (MAX 10MB!)
 // ==========================================
 
-function previewUploadImage(event) {
-    const file = event.target.files[0];
+function previewUploadImage(e) {
+    const file = e.target.files[0];
     if (!file) return;
     
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        alert('❌ Ukuran file terlalu besar!\nMaksimal 5MB.');
+    // Changed from 5MB to 10MB!
+    if (file.size > 10 * 1024 * 1024) {
+        alert('❌ Ukuran file terlalu besar!\nMaksimal 10MB.');
         return;
     }
     
     const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('uploadPreviewImg').src = e.target.result;
+    reader.onload = (ev) => {
+        document.getElementById('uploadPreviewImg').src = ev.target.result;
         document.getElementById('uploadPlaceholder').classList.add('hidden');
         document.getElementById('uploadPreviewContainer').classList.remove('hidden');
     };
@@ -1106,7 +1539,7 @@ function clearUploadImage() {
 
 
 // ==========================================
-// TABLE RENDERING WITH PAGINATION
+// TABLE RENDERING
 // ==========================================
 
 function renderTable() {
@@ -1115,10 +1548,8 @@ function renderTable() {
     const paginationContainer = document.getElementById('paginationContainer');
     const tableWrapper = tbody?.closest('.overflow-x-auto');
     
-    // Apply search and filters
     applyFilters();
     
-    // Check if empty
     if (filteredCustomers.length === 0) {
         if (tbody) tbody.innerHTML = '';
         emptyState?.classList.remove('hidden');
@@ -1128,104 +1559,58 @@ function renderTable() {
         return;
     }
     
-    // Show table and pagination
     emptyState?.classList.add('hidden');
     paginationContainer?.classList.remove('hidden');
     tableWrapper?.classList.remove('hidden');
     document.getElementById('tableCountBadge').textContent = `${filteredCustomers.length} data`;
     
-    // Calculate pagination
     const perPage = parseInt(document.getElementById('perPageSelect')?.value || 10);
     const totalPages = Math.ceil(filteredCustomers.length / perPage);
-    
-    // Ensure current page is valid
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
     
-    const startIndex = (currentPage - 1) * perPage;
-    const endIndex = Math.min(startIndex + perPage, filteredCustomers.length);
-    const pageData = filteredCustomers.slice(startIndex, endIndex);
+    const start = (currentPage - 1) * perPage;
+    const end = Math.min(start + perPage, filteredCustomers.length);
+    const pageData = filteredCustomers.slice(start, end);
     
-    // Render table rows
     if (tbody) {
-        tbody.innerHTML = pageData.map((cust, idx) => {
-            const progress = cust.visits % 5;
-            const isEligibleForFree = progress === 0 && cust.visits > 0;
-            const nextFree = isEligibleForFree ? 0 : (5 - progress);
+        tbody.innerHTML = pageData.map((c, idx) => {
+            const progress = c.visits % 5;
+            const isFree = progress === 0 && c.visits > 0;
+            const nextFree = isFree ? 0 : (5 - progress);
             
             return `
-                <tr class="table-row-hover border-b border-gray-100 transition duration-200">
-                    <td class="px-4 py-3 font-bold text-gray-500">${startIndex + idx + 1}</td>
+                <tr class="table-row-hover border-b border-gray-100 transition">
+                    <td class="px-4 py-3 font-bold text-gray-500">${start + idx + 1}</td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
-                            ${cust.foto ? 
-                                `<img src="${cust.foto}" alt="${cust.nama}" 
-                                     class="w-12 h-12 object-cover rounded-lg shadow cursor-pointer hover:scale-110 transition duration-200" 
-                                     onclick="showLightbox('${cust.foto}')">` :
-                                `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-user text-gray-400 text-xl"></i>
-                                 </div>`
-                            }
+                            ${c.foto ? `<img src="${c.foto}" class="w-12 h-12 object-cover rounded-lg shadow cursor-pointer hover:scale-110 transition" onclick="showLightbox('${c.foto}')">` : `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center"><i class="fas fa-user text-gray-400"></i></div>`}
                             <div>
-                                <p class="font-bold text-gray-900">${cust.nama}</p>
-                                <p class="text-xs text-gray-500">${cust.tanggalDaftar || '-'}</p>
+                                <p class="font-bold text-gray-900">${c.nama}</p>
+                                <p class="text-xs text-gray-500">${c.tanggalDaftar || '-'}</p>
                             </div>
                         </div>
                     </td>
                     <td class="px-4 py-3 hidden md:table-cell">
-                        <a href="https://wa.me/${cust.nohp}" target="_blank" 
-                           class="text-green-600 hover:text-green-800 font-semibold text-sm">
-                            <i class="fab fa-whatsapp mr-1"></i>${cust.nohp}
-                        </a>
+                        <a href="https://wa.me/${c.nohp}" target="_blank" class="text-green-600 hover:text-green-800 font-semibold text-sm"><i class="fab fa-whatsapp mr-1"></i>${c.nohp}</a>
                     </td>
                     <td class="px-4 py-3 text-center">
                         <div class="inline-flex flex-col items-center">
-                            <span class="text-2xl font-black ${isEligibleForFree ? 'text-red-500' : 'text-gray-900'}">${cust.visits}x</span>
+                            <span class="text-2xl font-black ${isFree ? 'text-red-500' : 'text-gray-900'}">${c.visits}x</span>
                             <div class="flex gap-1 mt-1">
-                                ${Array(5).fill(0).map((_, i) => `
-                                    <div class="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center
-                                        ${i < progress ? 'bg-yellow-400 text-gray-900 shadow-sm' : 'bg-gray-200 text-gray-500'}">
-                                        ${i + 1}
-                                    </div>
-                                `).join('')}
+                                ${Array(5).fill(0).map((_, i) => `<div class="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${i < progress ? 'bg-yellow-400 text-gray-900' : 'bg-gray-200 text-gray-500'}">${i+1}</div>`).join('')}
                             </div>
-                            <span class="text-[10px] mt-1 ${isEligibleForFree ? 'text-red-500 font-bold' : 'text-gray-500'}">
-                                ${isEligibleForFree ? '🎁 GRATIS!' : `${nextFree}x lagi`}
-                            </span>
+                            <span class="text-[10px] mt-1 ${isFree ? 'text-red-500 font-bold' : 'text-gray-500'}">${isFree ? '🎁 GRATIS!' : `${nextFree}x lagi`}</span>
                         </div>
                     </td>
                     <td class="px-4 py-3 text-center">
-                        ${isEligibleForFree ?
-                            `<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold animate-pulse">
-                                <i class="fas fa-gift mr-1"></i>GRATIS
-                             </span>` :
-                            `<span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                                <i class="fas fa-check mr-1"></i>AKTIF
-                             </span>`
-                        }
+                        ${isFree ? '<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold animate-pulse"><i class="fas fa-gift mr-1"></i>GRATIS</span>' : '<span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold"><i class="fas fa-check mr-1"></i>AKTIF</span>'}
                     </td>
                     <td class="px-4 py-3 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="addVisit('${cust.id}')" 
-                                    class="p-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition tooltip" 
-                                    title="Tambah Kunjungan (+1)">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <button onclick="showQRCode('${cust.id}')" 
-                                    class="p-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition tooltip" 
-                                    title="Generate QR Code">
-                                <i class="fas fa-qrcode"></i>
-                            </button>
-                            <button onclick="printStruk('${cust.id}')" 
-                                    class="p-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition tooltip" 
-                                    title="Cetak Bukti Kunjungan">
-                                <i class="fas fa-print"></i>
-                            </button>
-                            <button onclick="deleteCustomer('${cust.id}')" 
-                                    class="p-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition tooltip" 
-                                    title="Hapus Customer">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button onclick="addVisit('${c.id}')" class="p-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition" title="Tambah Kunjungan"><i class="fas fa-plus"></i></button>
+                            <button onclick="printStruk('${c.id}')" class="p-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition" title="Cetak Struk"><i class="fas fa-print"></i></button>
+                            <button onclick="deleteCustomer('${c.id}')" class="p-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition" title="Hapus"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -1233,38 +1618,82 @@ function renderTable() {
         }).join('');
     }
     
-    // Update pagination info
-    document.getElementById('showingFrom').textContent = filteredCustomers.length > 0 ? startIndex + 1 : 0;
-    document.getElementById('showingTo').textContent = endIndex;
+    document.getElementById('showingFrom').textContent = filteredCustomers.length > 0 ? start + 1 : 0;
+    document.getElementById('showingTo').textContent = end;
     document.getElementById('totalItems').textContent = filteredCustomers.length;
     
-    // Render page number buttons
     renderPaginationButtons(totalPages);
-    
-    // Update button states
     document.getElementById('btnFirst').disabled = currentPage === 1;
     document.getElementById('btnPrev').disabled = currentPage === 1;
     document.getElementById('btnNext').disabled = currentPage === totalPages;
     document.getElementById('btnLast').disabled = currentPage === totalPages;
 }
 
+function renderRecentActivity() {
+    const tbody = document.getElementById('recentActivityBody');
+    const emptyState = document.getElementById('emptyRecentState');
+    
+    if (customers.length === 0) {
+        if (tbody) tbody.innerHTML = '';
+        emptyState?.classList.remove('hidden');
+        document.getElementById('recentCountBadge').textContent = '0 data';
+        return;
+    }
+    
+    emptyState?.classList.add('hidden');
+    document.getElementById('recentCountBadge').textContent = `${Math.min(5, customers.length)} terbaru`;
+    
+    // Sort by latest visit
+    const recent = [...customers]
+        .sort((a, b) => new Date(b.terakhirKunjungan || 0) - new Date(a.terakhirKunjungan || 0))
+        .slice(0, 5);
+    
+    if (tbody) {
+        tbody.innerHTML = recent.map(c => {
+            const progress = c.visits % 5;
+            const isFree = progress === 0 && c.visits > 0;
+            const timeAgo = c.terakhirKunjungan ? getTimeAgo(new Date(c.terakhirKunjungan)) : '-';
+            
+            return `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            ${c.foto ? `<img src="${c.foto}" class="w-10 h-10 object-cover rounded-lg shadow">` : `<div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center"><i class="fas fa-user text-gray-400"></i></div>`}
+                            <span class="font-semibold text-gray-900">${c.nama}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 hidden md:table-cell">
+                        <a href="https://wa.me/${c.nohp}" target="_blank" class="text-green-600 text-sm"><i class="fab fa-whatsapp mr-1"></i>${c.nohp}</a>
+                    </td>
+                    <td class="px-4 py-3 text-center"><span class="font-bold ${isFree ? 'text-red-500' : ''}">${c.visits}x</span></td>
+                    <td class="px-4 py-3 text-center">${isFree ? '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">GRATIS</span>' : '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">AKTIF</span>'}</td>
+                    <td class="px-4 py-3 text-center text-xs text-gray-500">${timeAgo}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+}
+
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return 'Baru saja';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} menit lalu`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} jam lalu`;
+    return `${Math.floor(seconds / 86400)} hari lalu`;
+}
+
 function renderPaginationButtons(totalPages) {
     const container = document.getElementById('pageNumbers');
     container.innerHTML = '';
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+    if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible + 1);
     
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    if (endPage - startPage < maxVisiblePages - 1) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
+    for (let i = start; i <= end; i++) {
         const btn = document.createElement('button');
         btn.textContent = i;
-        btn.className = `page-btn w-10 h-10 border-2 rounded-lg font-bold transition
-                         ${i === currentPage ? 'active' : 'border-gray-200 hover:border-blue-500'}`;
+        btn.className = `page-btn w-10 h-10 border-2 rounded-lg font-bold ${i === currentPage ? 'active' : 'border-gray-200 hover:border-red-500'}`;
         btn.onclick = () => goToPage(i);
         container.appendChild(btn);
     }
@@ -1273,7 +1702,6 @@ function renderPaginationButtons(totalPages) {
 function goToPage(page) {
     const perPage = parseInt(document.getElementById('perPageSelect')?.value || 10);
     const totalPages = Math.ceil(filteredCustomers.length / perPage);
-    
     switch(page) {
         case 'first': currentPage = 1; break;
         case 'prev': currentPage = Math.max(1, currentPage - 1); break;
@@ -1281,416 +1709,380 @@ function goToPage(page) {
         case 'last': currentPage = totalPages; break;
         default: currentPage = page;
     }
-    
     renderTable();
 }
 
-function changePerPage() {
-    currentPage = 1;
-    renderTable();
-}
+function changePerPage() { currentPage = 1; renderTable(); }
 
 
 // ==========================================
-// SEARCH & FILTER FUNCTIONALITY
+// SEARCH & FILTER
 // ==========================================
 
 function applyFilters() {
-    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const statusFilter = document.getElementById('filterStatus')?.value || 'all';
+    const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const filter = document.getElementById('filterStatus')?.value || 'all';
     
-    filteredCustomers = customers.filter(cust => {
-        // Search by name or phone
-        const matchSearch = cust.nama.toLowerCase().includes(searchTerm) || 
-                          cust.nohp.includes(searchTerm);
-        
-        // Filter by status
-        const progress = cust.visits % 5;
-        const isEligibleForFree = progress === 0 && cust.visits > 0;
-        
+    filteredCustomers = customers.filter(c => {
+        const matchSearch = c.nama.toLowerCase().includes(search) || c.nohp.includes(search);
+        const progress = c.visits % 5;
+        const isFree = progress === 0 && c.visits > 0;
         let matchStatus = true;
-        if (statusFilter === 'active') matchStatus = !isEligibleForFree;
-        if (statusFilter === 'free') matchStatus = isEligibleForFree;
-        
+        if (filter === 'active') matchStatus = !isFree;
+        if (filter === 'free') matchStatus = isFree;
         return matchSearch && matchStatus;
     });
 }
 
-function handleSearch() {
-    currentPage = 1; // Reset to first page when searching
-    renderTable();
-}
+function handleSearch() { currentPage = 1; renderTable(); }
 
 
 // ==========================================
-// CUSTOMER ACTIONS (ADD VISIT, DELETE)
+// CUSTOMER ACTIONS
 // ==========================================
 
-async function addVisit(customerId) {
-    const index = customers.findIndex(c => c.id === customerId);
-    if (index === -1) {
-        alert('❌ Customer tidak ditemukan!');
-        return;
-    }
+async function addVisit(id) {
+    const idx = customers.findIndex(c => c.id === id);
+    if (idx === -1) { alert('❌ Customer tidak ditemukan!'); return; }
     
-    // Update local data
-    customers[index].visits += 1;
-    customers[index].terakhirKunjungan = new Date().toISOString();
-    
-    const updatedCustomer = { ...customers[index] };
-    const isEligibleForFree = updatedCustomer.visits % 5 === 0;
+    customers[idx].visits += 1;
+    customers[idx].terakhirKunjungan = new Date().toISOString();
+    const updated = { ...customers[idx] };
+    const isFree = updated.visits % 5 === 0;
     
     try {
-        await saveCustomerToFirebase(updatedCustomer);
-        
-        // Show success
-        if (isEligibleForFree) {
-            alert(`🎉 KUNJUNGAN DITAMBAHKAN!\n\n${updatedCustomer.nama}\nTotal: ${updatedCustomer.visits}x\n\n🎁 BERHAK DAPAT GRATIS!`);
+        await saveCustomerToFirebase(updated);
+        if (isFree) {
+            alert(`🎉 KUNJUNGAN DITAMBAHKAN!\n\n${updated.nama}\nTotal: ${updated.visits}x\n\n🎁 BERHAP DAPAT GRATIS!`);
+            sendNotification(updated); // SEND NOTIFICATION!
         } else {
-            showSuccessModal(
-                `✅ Kunjungan "${updatedCustomer.nama}" ditambahkan!`,
-                `Total: ${updatedCustomer.visits}x (${5 - (updatedCustomer.visits % 5)}x lagi gratis)`
-            );
+            showSuccessModal(`✅ "${updated.nama}" ditambahkan!`, `Total: ${updated.visits}x`);
         }
-        
-    } catch (error) {
-        alert('❌ Gagal mengupdate data!\nError: ' + error.message);
-    }
+    } catch (err) { alert('❌ Gagal update!'); }
 }
 
-async function deleteCustomer(customerId) {
-    if (!confirm('⚠️ Yakin ingin menghapus customer ini?\n\nTindakan ini TIDAK DAPAT dibatalkan!')) {
-        return;
-    }
-    
+async function deleteCustomer(id) {
+    if (!confirm('⚠️ Hapus customer ini?')) return;
     try {
-        await deleteCustomerFromFirebase(customerId);
-        
-        // Remove from local array
-        customers = customers.filter(c => c.id !== customerId);
-        
-        // Refresh UI
+        await deleteCustomerFromFirebase(id);
+        customers = customers.filter(c => c.id !== id);
         updateStatistics();
         updateNavStats();
         renderTable();
-        
-        console.log('🗑️ Customer deleted successfully');
-        
-    } catch (error) {
-        alert('❌ Gagal menghapus customer!\nError: ' + error.message);
-    }
+        renderRecentActivity();
+    } catch (err) { alert('❌ Gagal hapus!'); }
 }
 
 function confirmClearAll() {
-    if (!confirm('⚠️ PERINGATAN!\n\nSemua data akan DIHAPUS PERMANEN dari cloud!\n\nLanjutkan?')) {
-        return;
-    }
-    
-    if (!confirm('🔴 KONFIRMASI TERAKHIR:\n\nData yang dihapus:\n• Semua customer\n• Semua riwayat kunjungan\n• Semua foto\n\nTidak bisa dikembalikan!')) {
-        return;
-    }
-    
+    if (!confirm('⚠️ HAPUS SEMUA DATA?')) return;
+    if (!confirm('🔴 TIDAK DAPAT DIKEMBALIKAN!')) return;
     clearAllFromFirebase().then(() => {
         customers = [];
         updateStatistics();
         updateNavStats();
         renderTable();
-        alert('✅ Semua data berhasil dihapus dari cloud!');
+        renderRecentActivity();
+        alert('✅ Semua data dihapus!');
     });
 }
 
 
 // ==========================================
-// STATISTICS & COUNTERS
+// STATISTICS
 // ==========================================
 
 function updateStatistics() {
-    const totalCustomers = customers.length;
+    const totalCust = customers.length;
     let totalVisits = 0;
+    customers.forEach(c => totalVisits += c.visits);
+    const freeGiven = Math.floor(totalVisits / 5);
     
-    customers.forEach(c => {
-        totalVisits += c.visits;
-    });
-    
-    const freeHaircutsGiven = Math.floor(totalVisits / 5);
-    
-    // Animate counters
-    animateNumber('statTotalCustomers', totalCustomers);
+    animateNumber('statTotalCustomers', totalCust);
     animateNumber('statTotalVisits', totalVisits);
-    animateNumber('statFreeHaircuts', freeHaircutsGiven);
+    animateNumber('statFreeHaircuts', freeGiven);
+    document.getElementById('statNotificationsSent').textContent = notificationsSentCount;
 }
 
 function updateNavStats() {
-    const totalCust = customers.length;
-    let totalVisits = 0;
-    
-    customers.forEach(c => totalVisits += c.visits);
-    
-    document.getElementById('navTotalCust').textContent = totalCust;
-    document.getElementById('navTotalVisits').textContent = totalVisits;
+    document.getElementById('navTotalCust').textContent = customers.length;
+    document.getElementById('navTotalVisits').textContent = customers.reduce((sum, c) => sum + c.visits, 0);
 }
 
-function animateNumber(elementId, targetValue) {
-    const element = document.getElementById(elementId);
-    const startValue = parseInt(element.textContent) || 0;
-    const duration = 500; // ms
+function animateNumber(elId, target) {
+    const el = document.getElementById(elId);
+    const start = parseInt(el.textContent) || 0;
+    const duration = 500;
     const startTime = performance.now();
     
-    function updateCounter(currentTime) {
-        const elapsedTime = currentTime - startTime;
-        const progress = Math.min(elapsedTime / duration, 1);
-        
-        // Easing function (ease-out)
+    function update(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
         const easeOut = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(start + (target - start) * easeOut);
+        if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+}
+
+
+// ==========================================
+// ANALYTICS CHARTS
+// ==========================================
+
+function updateAnalyticsCharts() {
+    if (!chartsInitialized) {
+        initCharts();
+        chartsInitialized = true;
+    }
+    updateChartData();
+    updateAnalyticsSummary();
+}
+
+function initCharts() {
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { font: { family: 'Inter' } } } }
+    };
+    
+    // Weekly Visits Chart
+    const ctx1 = document.getElementById('weeklyVisitsChart').getContext('2d');
+    weeklyVisitsChart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+            datasets: [{
+                label: 'Kunjungan',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                backgroundColor: 'rgba(220, 38, 38, 0.8)',
+                borderColor: '#dc2626',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: { ...chartOptions, scales: { y: { beginAtZero: true } } }
+    });
+    
+    // Customer Growth Chart
+    const ctx2 = document.getElementById('customerGrowthChart').getContext('2d');
+    customerGrowthChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Total Customer',
+                data: [],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: { ...chartOptions, scales: { y: { beginAtZero: true } } }
+    });
+    
+    // Visit Distribution Chart
+    const ctx3 = document.getElementById('visitDistributionChart').getContext('2d');
+    visitDistributionChart = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+            labels: ['1x', '2x', '3x', '4x', '5x+', 'Gratis'],
+            datasets: [{
+                data: [0, 0, 0, 0, 0, 0],
+                backgroundColor: ['#fef3c7', '#fde68a', '#fcd34d', '#f59e0b', '#d97706', '#dc2626']
+            }]
+        },
+        options: chartOptions
+    });
+    
+    // Free Haircuts Chart
+    const ctx4 = document.getElementById('freeHaircutsChart').getContext('2d');
+    freeHaircutsChart = new Chart(ctx4, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Potongan Gratis Diberikan',
+                data: [],
+                borderColor: '#d4af37',
+                backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: { ...chartOptions, scales: { y: { beginAtZero: true } } }
+    });
+}
+
+function updateChartData() {
+    if (!weeklyVisitsChart) return;
+    
+    // Weekly visits (last 7 days)
+    const weekData = [0, 0, 0, 0, 0, 0, 0];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
         
-        const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOut);
-        element.textContent = currentValue;
-        
-        if (progress < 1) {
-            requestAnimationFrame(updateCounter);
+        customers.forEach(c => {
+            if (c.terakhirKunjungan && c.terakhirKunjungan.startsWith(dateStr)) {
+                weekData[6 - i]++;
+            }
+        });
+    }
+    weeklyVisitsChart.data.datasets[0].data = weekData;
+    weeklyVisitsChart.update();
+    
+    // Customer growth (by registration date)
+    const growthData = {};
+    customers.forEach(c => {
+        const date = c.tanggalDaftar || new Date().toLocaleDateString('id-ID');
+        growthData[date] = (growthData[date] || 0) + 1;
+    });
+    
+    const sortedDates = Object.keys(growthData).sort((a, b) => new Date(a) - new Date(b)).slice(-30);
+    let cumulative = 0;
+    const cumulativeData = sortedDates.map(date => {
+        cumulative += growthData[date];
+        return cumulative;
+    });
+    
+    customerGrowthChart.data.labels = sortedDates;
+    customerGrowthChart.data.datasets[0].data = cumulativeData;
+    customerGrowthChart.update();
+    
+    // Visit distribution
+    const distData = [0, 0, 0, 0, 0, 0]; // 1x, 2x, 3x, 4x, 5x, gratis
+    customers.forEach(c => {
+        const visits = c.visits;
+        if (visits >= 5 && visits % 5 === 0) distData[5]++;
+        else if (visits >= 5) distData[4]++;
+        else if (visits > 0) distData[visits - 1]++;
+    });
+    visitDistributionChart.data.datasets[0].data = distData;
+    visitDistributionChart.update();
+    
+    // Free haircuts timeline
+    const freeData = {};
+    let totalFree = 0;
+    customers.forEach(c => {
+        const freeCount = Math.floor(c.visits / 5);
+        if (freeCount > 0) {
+            const date = c.terakhirKunjungan ? c.terakhirKunjungan.split('T')[0] : new Date().toISOString().split('T')[0];
+            freeData[date] = (freeData[date] || 0) + freeCount;
+            totalFree += freeCount;
         }
-    }
-    
-    requestAnimationFrame(updateCounter);
-}
-
-
-// ==========================================
-// QR CODE GENERATION
-// ==========================================
-
-let currentQRCodeInstance = null;
-
-function showQRCode(customerId) {
-    const customer = customers.find(c => c.id === customerId);
-    if (!customer) {
-        alert('❌ Customer tidak ditemukan!');
-        return;
-    }
-    
-    // Update modal content
-    document.getElementById('qrCustomerName').textContent = customer.nama;
-    document.getElementById('qrModal').classList.remove('hidden');
-    
-    // Clear previous QR code
-    const container = document.getElementById('qrCodeContainer');
-    container.innerHTML = '';
-    
-    // Generate new QR code
-    const qrData = JSON.stringify({
-        id: customer.id,
-        nama: customer.nama,
-        nohp: customer.nohp,
-        visits: customer.visits,
-        source: 'Barbershop Cloud System',
-        generatedAt: new Date().toISOString()
-    }, null, 2);
-    
-    currentQRCodeInstance = new QRCode(container, {
-        text: qrData,
-        width: 200,
-        height: 200,
-        colorDark: '#1a1a1a',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
-    });
-}
-
-function downloadQRCode() {
-    const canvas = document.querySelector('#qrCodeCanvas');
-    if (!canvas) {
-        alert('❌ QR Code belum siap!');
-        return;
-    }
-    
-    const link = document.createElement('a');
-    link.download = `qrcode-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-}
-
-
-// ==========================================
-// STRUK / RECEIPT PRINTING
-// ==========================================
-
-function printStruk(customerId) {
-    const customer = customers.find(c => c.id === customerId);
-    if (!customer) {
-        alert('❌ Customer tidak ditemukan!');
-        return;
-    }
-    
-    const progress = customer.visits % 5;
-    const isEligibleForFree = progress === 0 && customer.visits > 0;
-    
-    const dateNow = new Date().toLocaleString('id-ID', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
     });
     
-    // Generate struk HTML
-    const strukHTML = `
-        <div style="text-align:center; margin-bottom:15px;">
-            <div style="font-size:22px; font-weight:bold;">✂️ BARBERSHOP PREMIUM</div>
-            <div style="font-size:11px; color:#666;">Jl. Contoh Alamat No. 123, Jakarta</div>
-            <div style="font-size:11px; color:#666;">Tel: 08123456789</div>
+    const freeSortedDates = Object.keys(freeData).sort().slice(-30);
+    let freeCumulative = 0;
+    const freeCumulativeData = freeSortedDates.map(date => {
+        freeCumulative += freeData[date];
+        return freeCumulative;
+    });
+    
+    freeHaircutsChart.data.labels = freeSortedDates;
+    freeHaircutsChart.data.datasets[0].data = freeCumulativeData;
+    freeHaircutsChart.update();
+}
+
+function updateAnalyticsSummary() {
+    // Average visits per customer
+    const avgVisits = customers.length > 0 
+        ? (customers.reduce((sum, c) => sum + c.visits, 0) / customers.length).toFixed(1)
+        : 0;
+    document.getElementById('avgVisitsPerCustomer').textContent = avgVisits;
+    
+    // Customers eligible for free (3-4 visits)
+    const eligible = customers.filter(c => {
+        const progress = c.visits % 5;
+        return progress >= 3 && progress < 5;
+    }).length;
+    document.getElementById('eligibleForFree').textContent = eligible;
+    
+    // Today's visits
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayVisits = customers.filter(c => 
+        c.terakhirKunjungan && c.terakhirKunjungan.startsWith(todayStr)
+    ).length;
+    document.getElementById('todayVisits').textContent = todayVisits;
+}
+
+
+// ==========================================
+// STRUK PRINTING
+// ==========================================
+
+function printStruk(id) {
+    const c = customers.find(x => x.id === id);
+    if (!c) { alert('❌ Customer tidak ditemukan!'); return; }
+    
+    const progress = c.visits % 5;
+    const isFree = progress === 0 && c.visits > 0;
+    const dateNow = new Date().toLocaleString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    
+    document.getElementById('printArea').innerHTML = `
+        <div style="text-align:center;margin-bottom:15px;">
+            <div style="font-size:22px;font-weight:bold;">✂️ HAIRSPACE</div>
+            <div style="font-size:11px;color:#666;">Premium Grooming Experience</div>
         </div>
-        
-        <div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:12px 0; margin:10px 0;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                <span style="font-weight:bold;">BUKTI KUNJUNGAN</span>
-                <span>#${String(customer.id).slice(-6)}</span>
-            </div>
-            
-            <div style="margin:10px 0;">
-                <div style="font-weight:bold; font-size:16px;">${customer.nama.toUpperCase()}</div>
-                <div style="font-size:11px; color:#666;">${customer.nohp}</div>
-            </div>
-            
-            <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:8px;">
-                <span>Tanggal/Waktu</span>
-                <span>${dateNow}</span>
-            </div>
-            
-            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-top:5px;">
-                <span>Kunjungan Ke-</span>
-                <span>${customer.visits}</span>
-            </div>
+        <div style="border-top:2px dashed #000;border-bottom:2px dashed #000;padding:12px 0;margin:10px 0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-weight:bold;">BUKTI KUNJUNGAN</span><span>#${String(c.id).slice(-6)}</span></div>
+            <div style="margin:10px 0;"><div style="font-weight:bold;font-size:16px;">${c.nama.toUpperCase()}</div><div style="font-size:11px;color:#666;">${c.nohp}</div></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:8px;"><span>Tanggal/Waktu</span><span>${dateNow}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:bold;margin-top:5px;"><span>Kunjungan Ke-</span><span>${c.visits}</span></div>
         </div>
-        
-        <div style="background:${isEligibleForFree ? '#fee2e2' : '#f0fdf4'}; padding:12px; border-radius:8px; text-align:center; margin:15px 0;">
-            ${isEligibleForFree ? 
-                `<div style="color:#dc2626; font-weight:bold; font-size:15px;">🎁🎁🎁 SELAMAT! 🎁🎁🎁</div>
-                 <div style="color:#dc2626; font-size:13px; margin-top:5px;">Anda mendapat 1 POTONGAN GRATIS!</div>
-                 <div style="color:#666; font-size:11px; margin-top:5px;">Tunjukkan struk ini ke kasir</div>` :
-                `<div style="color:#16a34a; font-weight:bold; font-size:14px;">Progress: ${progress}/5 ✂️</div>
-                 <div style="color:#666; font-size:11px; margin-top:5px;">Lagi ${5-progress}x kunjungan lagi untuk GRATIS!</div>`
+        <div style="background:${isFree ? '#fee2e2' : '#f0fdf4'};padding:12px;border-radius:8px;text-align:center;margin:15px 0;">
+            ${isFree ? 
+                `<div style="color:#dc2626;font-weight:bold;font-size:15px;">🎁🎁🎁 SELAMAT! 🎁🎁🎁</div><div style="color:#dc2626;font-size:13px;margin-top:5px;">Anda mendapat 1 POTONGAN GRATIS!</div>` :
+                `<div style="color:#16a34a;font-weight:bold;font-size:14px;">Progress: ${progress}/5 ✂️</div><div style="color:#666;font-size:11px;margin-top:5px;">Lagi ${5-progress}x lagi untuk GRATIS!</div>`
             }
         </div>
-        
-        <div style="margin-top:20px; text-align:center; padding-top:10px; border-top:1px dashed #ccc;">
-            <div style="font-size:18px; letter-spacing:4px; color:#999;">▪▪▪▪▪▪▪▪▪▪</div>
-            <div style="font-size:10px; color:#999; margin-top:8px;">Terima kasih atas kunjungannya!</div>
-            <div style="font-size:10px; color:#999; margin-top:3px;">Program Loyalitas: Cukur 5x Gratis 1x</div>
-            <div style="font-size:9px; color:#aaa; margin-top:5px;">Powered by Barbershop Cloud System ☁️</div>
+        <div style="margin-top:20px;text-align:center;padding-top:10px;border-top:1px dashed #ccc;">
+            <div style="font-size:18px;letter-spacing:4px;color:#999;">▪▪▪▪▪▪▪▪▪▪</div>
+            <div style="font-size:10px;color:#999;margin-top:8px;">Terima kasih! • Cukur 5x Gratis 1x</div>
+            <div style="font-size:9px;color:#aaa;margin-top:5px;">HAIRSPACE Cloud System ☁️</div>
         </div>
     `;
-    
-    // Display in modal
-    document.getElementById('printArea').innerHTML = strukHTML;
     document.getElementById('strukModal').classList.remove('hidden');
 }
 
-function executePrint() {
-    window.print();
-}
+function executePrint() { window.print(); }
 
 function printAllData() {
-    if (customers.length === 0) {
-        alert('❌ Tidak ada data untuk dicetak!');
-        return;
-    }
-    
-    // Generate printable HTML table
-    let html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Laporan Customer Barbershop</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                h1 { color: #1a1a1a; text-align: center; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-                th { background: #3b82f6; color: white; }
-                tr:nth-child(even) { background: #f9f9f9; }
-                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-            </style>
-        </head>
-        <body>
-            <h1>📋 LAPORAN DATA CUSTOMER</h1>
-            <p style="text-align:center; color:#666;">Tanggal: ${new Date().toLocaleDateString('id-ID')}</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Customer</th>
-                        <th>No. WhatsApp</th>
-                        <th>Total Kunjungan</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-    
-    customers.forEach((c, index) => {
-        const progress = c.visits % 5;
-        const status = (progress === 0 && c.visits > 0) ? '🎁 GRATIS' : '✅ Aktif';
-        
-        html += `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${c.nama}</td>
-                <td>${c.nohp}</td>
-                <td><strong>${c.visits}x</strong></td>
-                <td><strong>${status}</strong></td>
-            </tr>
-        `;
+    if (customers.length === 0) { alert('❌ Tidak ada data!'); return; }
+    let html = `<!DOCTYPE html><html><head><title>Laporan - HAIRSPACE</title><style>body{font-family:Arial;padding:20px}h1{color:#dc2626;text-align:center}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ddd;padding:10px;text-align:left}th{background:#dc2626;color:white}.footer{text-align:center;margin-top:20px;color:#666;font-size:12px}</style></head><body>`;
+    html += `<h1>📋 LAPORAN CUSTOMER - HAIRSPACE</h1><p style="text-align:center;color:#666">${new Date().toLocaleDateString('id-ID')}</p><table><thead><tr><th>No</th><th>Nama</th><th>WhatsApp</th><th>Kunjungan</th><th>Status</th></tr></thead><tbody>`;
+    customers.forEach((c, i) => {
+        const status = (c.visits % 5 === 0 && c.visits > 0) ? '🎁 GRATIS' : '✅ Aktif';
+        html += `<tr><td>${i+1}</td><td>${c.nama}</td><td>${c.nohp}</td><td><strong>${c.visits}x</strong></td><td><strong>${status}</strong></td></tr>`;
     });
-    
-    html += `
-                </tbody>
-            </table>
-            <div class="footer">
-                <p>Total Customer: <strong>${customers.length}</strong></p>
-                <p>Dicetak pada: ${new Date().toLocaleString('id-ID')}</p>
-                <p>Barbershop Cloud System ☁️</p>
-            </div>
-        </body>
-        </html>
-    `;
-    
-    // Open print window
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.print();
+    html += `</tbody></table><div class="footer"><p>Total: <strong>${customers.length}</strong></p><p>HAIRSPACE ☁️</p></div></body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.print();
 }
 
 
 // ==========================================
-// EXPORT TO CSV / EXCEL
+// EXPORT CSV
 // ==========================================
 
 function exportToCSV() {
-    if (customers.length === 0) {
-        alert('❌ Tidak ada data untuk diekspor!');
-        return;
-    }
-    
-    // Generate CSV content
-    let csvContent = 'No,Nama Customer,No WhatsApp,Total Kunjungan,Tanggal Daftar,Terakhir Kunjungan,Status\n';
-    
-    customers.forEach((c, index) => {
-        const progress = c.visits % 5;
-        const status = (progress === 0 && c.visits > 0) ? 'GRATIS' : 'AKTIF';
-        
-        csvContent += `"${index + 1}","${c.nama}","${c.nohp}",${c.visits},"${c.tanggalDaftar || '-'}","${c.terakhirKunjungan || '-'}","${status}"\n`;
+    if (customers.length === 0) { alert('❌ Tidak ada data!'); return; }
+    let csv = 'No,Nama,No HP,Kunjungan,Tanggal Daftar,Status\n';
+    customers.forEach((c, i) => {
+        const status = (c.visits % 5 === 0 && c.visits > 0) ? 'GRATIS' : 'AKTIF';
+        csv += `"${i+1}","${c.nama}","${c.nohp}",${c.visits},"${c.tanggalDaftar || '-'}","${status}"\n`;
     });
-    
-    // Create and download file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `barbershop_customer_data_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `hairspace_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-    
-    alert(`✅ File CSV berhasil didownload!\n\nTotal: ${customers.length} customer`);
+    alert(`✅ Export berhasil! (${customers.length} customer)`);
 }
 
 
@@ -1698,74 +2090,37 @@ function exportToCSV() {
 // UTILITY FUNCTIONS
 // ==========================================
 
-function showModal(modalId) {
-    document.getElementById(modalId)?.classList.remove('hidden');
+function showModal(id) { document.getElementById(id)?.classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id)?.classList.add('hidden'); }
+function showSuccessModal(msg, submsg = '') {
+    document.getElementById('successMessage').textContent = msg;
+    document.getElementById('successSubmessage').textContent = submsg;
+    showModal('successModal');
+}
+function showLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    showModal('imageLightbox');
+}
+function shakeElement(el) {
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = 'shake 0.5s ease-in-out';
 }
 
-function closeModal(modalId) {
-    document.getElementById(modalId)?.classList.add('hidden');
-}
-
-function showSuccessModal(message, submessage = '') {
-    document.getElementById('successMessage').textContent = message;
-    document.getElementById('successSubmessage').textContent = submessage;
-    document.getElementById('successModal').classList.remove('hidden');
-}
-
-function showLightbox(imageSrc) {
-    document.getElementById('lightboxImg').src = imageSrc;
-    document.getElementById('imageLightbox').classList.remove('hidden');
-}
-
-function shakeElement(element) {
-    element.style.animation = 'none';
-    element.offsetHeight; // Trigger reflow
-    element.style.animation = 'shake 0.5s ease-in-out';
-}
-
-// Close modals on outside click
+// Close modals
 document.querySelectorAll('.modal-overlay').forEach(modal => {
-    modal.addEventListener('click', function(event) {
-        if (event.target === this) {
-            this.classList.add('hidden');
-        }
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.add('hidden');
     });
 });
-
-// Close modals with ESC key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.classList.add('hidden');
-        });
-    }
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
 });
 
-// Add custom animations
-const customStyles = document.createElement('style');
-customStyles.textContent = `
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-    }
-    
-    @keyframes slideIn {
-        from { 
-            opacity: 0; 
-            transform: translateY(-20px); 
-        }
-        to { 
-            opacity: 1; 
-            transform: translateY(0); 
-        }
-    }
-    
-    .animate-slide-in {
-        animation: slideIn 0.3s ease-out;
-    }
-`;
-document.head.appendChild(customStyles);
+// Animations
+const style = document.createElement('style');
+style.textContent = `@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}`;
+document.head.appendChild(style);
 
 </script>
 </body>
